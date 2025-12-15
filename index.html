@@ -108,69 +108,57 @@
       box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
     }
     
-    .user-info {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(255,255,255,0.95);
-      padding: 10px 20px;
-      border-radius: 50px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      z-index: 1000;
-    }
-    
-    .user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
-      font-size: 18px;
-    }
-    
-    .logout-btn {
-      background: #ef4444;
-      color: white;
-      border: none;
-      padding: 5px 15px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 0.3s;
-    }
-    
-    .logout-btn:hover {
-      background: #dc2626;
-      transform: scale(1.05);
-    }
-    
-    .sync-status {
+    /* ========== MINIMAL SYNC INDICATOR ========== */
+    .sync-indicator {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: #10b981;
+      width: 40px;
+      height: 40px;
+      background: rgba(16, 185, 129, 0.9);
       color: white;
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-size: 14px;
-      box-shadow: 0 4px 12px rgba(16,185,129,0.3);
-      display: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
       z-index: 1000;
-      animation: fadeInOut 2s ease;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      font-size: 18px;
     }
     
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translateY(10px); }
-      15% { opacity: 1; transform: translateY(0); }
-      85% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(10px); }
+    .sync-indicator.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+    
+    .sync-indicator.syncing {
+      background: rgba(99, 102, 241, 0.9);
+      animation: pulse 1.5s infinite;
+    }
+    
+    .sync-indicator.success {
+      background: rgba(16, 185, 129, 0.9);
+      animation: successPulse 0.5s;
+    }
+    
+    .sync-indicator.error {
+      background: rgba(239, 68, 68, 0.9);
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+    }
+    
+    @keyframes successPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
     }
 
     .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
@@ -190,7 +178,7 @@
       align-items: center;
       box-shadow: 0 8px 20px rgba(16,185,129,0.3);
       animation: fadeIn 0.4s ease;
-      display: none; /* Hidden by default */
+      display: none;
     }
 
     .today-status.negative {
@@ -520,12 +508,6 @@
       #todayStatusEmoji { font-size: 2.5rem; }
       .chart-container { height: 250px; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .user-info {
-        top: 10px;
-        right: 10px;
-        left: 10px;
-        justify-content: space-between;
-      }
     }
   </style>
 </head>
@@ -572,19 +554,6 @@
 
 <!-- ========== MAIN APP (Hidden until login) ========== -->
 <div id="appContainer" style="display: none;">
-  <!-- User Info Bar -->
-  <div class="user-info">
-    <div class="user-avatar" id="userAvatar">U</div>
-    <div>
-      <div id="userName" style="font-weight: 600;"></div>
-      <div id="userEmail" style="font-size: 12px; color: #6b7280;"></div>
-    </div>
-    <button onclick="logoutUser()" class="logout-btn">Logout</button>
-  </div>
-  
-  <!-- Sync Status Indicator -->
-  <div class="sync-status" id="syncStatus">🔄 Syncing...</div>
-  
   <!-- Original App Content -->
   <div class="container">
     <!-- Today Status Banner -->
@@ -704,6 +673,9 @@
   </div>
 </div>
 
+<!-- Minimal Sync Indicator -->
+<div class="sync-indicator" id="syncIndicator">✓</div>
+
 <script>
   // ================= FIREBASE CONFIGURATION =================
   const firebaseConfig = {
@@ -723,7 +695,6 @@
 
   // ================= AUTH FUNCTIONS =================
   function showAuthTab(tabName) {
-    // Update tabs
     document.querySelectorAll('.auth-tab').forEach(tab => {
       tab.classList.remove('active');
     });
@@ -731,11 +702,9 @@
       form.classList.remove('active');
     });
     
-    // Activate selected tab
     document.querySelector(`.auth-tab[onclick*="${tabName}"]`).classList.add('active');
     document.getElementById(`${tabName}Form`).classList.add('active');
     
-    // Clear messages
     document.getElementById('authMessage').innerHTML = '';
   }
 
@@ -757,11 +726,9 @@
     try {
       showAuthMessage('Creating account...', 'info');
       
-      // Create user with Firebase Auth
       const userCredential = await auth.createUserWithEmailAndPassword(email, password);
       const user = userCredential.user;
       
-      // Save user profile to Firestore
       await db.collection('users').doc(user.uid).set({
         name: name,
         email: email,
@@ -769,12 +736,10 @@
         lastLogin: firebase.firestore.FieldValue.serverTimestamp()
       });
       
-      // Initialize user's growth data
       await initializeUserData(user.uid);
       
       showAuthMessage('Account created successfully! Loading your data...', 'success');
       
-      // Load app after a short delay
       setTimeout(() => {
         loadApp(user);
       }, 1500);
@@ -813,7 +778,6 @@
       const userCredential = await auth.signInWithEmailAndPassword(email, password);
       const user = userCredential.user;
       
-      // Update last login time
       await db.collection('users').doc(user.uid).update({
         lastLogin: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -855,20 +819,6 @@
     }
   }
 
-  async function logoutUser() {
-    if (confirm('Logout from all devices?')) {
-      try {
-        await auth.signOut();
-        showSyncStatus('Logged out successfully');
-        setTimeout(() => {
-          location.reload();
-        }, 1000);
-      } catch (error) {
-        console.error('Logout error:', error);
-      }
-    }
-  }
-
   function showAuthMessage(message, type = 'info') {
     const msgDiv = document.getElementById('authMessage');
     msgDiv.innerHTML = message;
@@ -894,6 +844,7 @@
   // ================= USER DATA MANAGEMENT =================
   let currentUserId = null;
   let unsubscribeSnapshot = null;
+  let syncTimeout = null;
 
   async function initializeUserData(uid) {
     const initialData = {
@@ -918,7 +869,6 @@
       if (docSnap.exists) {
         return docSnap.data();
       } else {
-        // Initialize data if doesn't exist
         return await initializeUserData(uid);
       }
     } catch (error) {
@@ -927,45 +877,90 @@
     }
   }
 
-  async function saveUserData(dataToSave) {
-    if (!currentUserId) return;
+  // ================= SYNC INDICATOR FUNCTIONS =================
+  function showSyncIndicator(type = 'syncing', duration = 2000) {
+    const indicator = document.getElementById('syncIndicator');
+    if (!indicator) return;
     
-    try {
-      dataToSave.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-      await db.collection('userData').doc(currentUserId).set(dataToSave, { merge: true });
-      showSyncStatus('✅ Data saved to cloud');
-    } catch (error) {
-      console.error('Error saving data:', error);
-      showSyncStatus('❌ Sync failed');
+    if (syncTimeout) {
+      clearTimeout(syncTimeout);
+      syncTimeout = null;
+    }
+    
+    indicator.className = 'sync-indicator';
+    
+    indicator.classList.add(type);
+    indicator.classList.add('active');
+    
+    if (type === 'syncing') {
+      indicator.innerHTML = '⟳';
+      indicator.style.animation = 'pulse 1.5s infinite';
+    } else if (type === 'success') {
+      indicator.innerHTML = '✓';
+      indicator.style.animation = 'successPulse 0.5s';
+    } else if (type === 'error') {
+      indicator.innerHTML = '✗';
+    }
+    
+    if (type !== 'syncing') {
+      syncTimeout = setTimeout(() => {
+        indicator.classList.remove('active');
+        indicator.classList.remove(type);
+      }, duration);
     }
   }
 
-  function showSyncStatus(message) {
-    const status = document.getElementById('syncStatus');
-    status.textContent = message;
-    status.style.display = 'block';
+  function hideSyncIndicator() {
+    const indicator = document.getElementById('syncIndicator');
+    if (indicator) {
+      indicator.classList.remove('active');
+      indicator.classList.remove('syncing', 'success', 'error');
+    }
+    if (syncTimeout) {
+      clearTimeout(syncTimeout);
+      syncTimeout = null;
+    }
+  }
+
+  // ================= AUTO-SYNC ON EVERY INTERACTION =================
+  async function saveDataToCloud() {
+    if (!currentUserId) return;
     
-    // Auto-hide after 2 seconds
-    setTimeout(() => {
-      status.style.display = 'none';
-    }, 2000);
+    showSyncIndicator('syncing');
+    
+    try {
+      const data = {
+        baseValue: baseValue,
+        entries: entries,
+        streakData: streakData,
+        milestones: milestones,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      
+      await db.collection('userData').doc(currentUserId).set(data, { merge: true });
+      
+      setTimeout(() => {
+        showSyncIndicator('success', 800);
+      }, 300);
+      
+    } catch (error) {
+      console.error('Error saving data:', error);
+      showSyncIndicator('error', 1500);
+    }
   }
 
   // ================= REALTIME SYNC =================
   function setupRealtimeSync(uid) {
-    // Clean up previous listener if exists
     if (unsubscribeSnapshot) {
       unsubscribeSnapshot();
     }
     
     const docRef = db.collection('userData').doc(uid);
     
-    // Listen for real-time updates
     unsubscribeSnapshot = docRef.onSnapshot((doc) => {
       if (doc.exists) {
         const remoteData = doc.data();
         
-        // Check if data is different from current local data
         const localDataStr = JSON.stringify({
           baseValue: baseValue,
           entries: entries,
@@ -981,35 +976,31 @@
         });
         
         if (localDataStr !== remoteDataStr) {
-          showSyncStatus('🔄 Syncing from cloud...');
+          showSyncIndicator('syncing');
           
-          // Update local data from cloud
           baseValue = remoteData.baseValue || 16;
           entries = remoteData.entries || [];
           streakData = remoteData.streakData || { count: 0, lastDate: "" };
           milestones = remoteData.milestones || { "5": false, "10": false, "20": false, "50": false };
           
-          // Update UI
           document.getElementById('baseInput').value = baseValue;
           render();
           updateTodayBanner();
+          
+          setTimeout(() => {
+            hideSyncIndicator();
+          }, 1000);
         }
       }
     }, (error) => {
       console.error('Sync error:', error);
-      showSyncStatus('❌ Sync error');
+      showSyncIndicator('error', 2000);
     });
     
     // Auto-save every 30 seconds
     setInterval(() => {
       if (currentUserId && entries.length > 0) {
-        const data = {
-          baseValue: baseValue,
-          entries: entries,
-          streakData: streakData,
-          milestones: milestones
-        };
-        saveUserData(data);
+        saveDataToCloud();
       }
     }, 30000);
   }
@@ -1018,21 +1009,13 @@
   async function loadApp(user) {
     currentUserId = user.uid;
     
-    // Hide auth, show app
     document.getElementById('authContainer').style.display = 'none';
     document.getElementById('appContainer').style.display = 'block';
     
     try {
-      // Load user profile
       const userDoc = await db.collection('users').doc(user.uid).get();
       const userData = userDoc.data();
       
-      // Update user info display
-      document.getElementById('userName').textContent = userData.name || 'User';
-      document.getElementById('userEmail').textContent = user.email;
-      document.getElementById('userAvatar').textContent = (userData.name || 'U').charAt(0).toUpperCase();
-      
-      // Load user's growth data
       const growthData = await loadUserData(user.uid);
       
       if (growthData) {
@@ -1042,22 +1025,18 @@
         milestones = growthData.milestones || { "5": false, "10": false, "20": false, "50": false };
       }
       
-      // Setup real-time sync
       setupRealtimeSync(user.uid);
       
-      // Initialize the app
       init();
-      showSyncStatus(`Welcome ${userData.name || 'User'}!`);
+      showSyncIndicator('success', 1500);
       
     } catch (error) {
       console.error('Error loading app:', error);
-      showAuthMessage('Error loading data. Please try again.', 'error');
-      auth.signOut();
+      showSyncIndicator('error', 2000);
     }
   }
 
-  // ================= ORIGINAL APP CODE (Modified for Firebase) =================
-  // Utilities
+  // ================= ORIGINAL APP CODE =================
   const toYMD = (d) => {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -1092,7 +1071,6 @@
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  // Input Validation
   function clampValue(value) {
     return Math.max(-5, Math.min(5, value));
   }
@@ -1119,7 +1097,6 @@
     return value.toString();
   }
 
-  // Celebration Functions
   function createConfetti() {
     const colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
     
@@ -1155,7 +1132,6 @@
     }
   }
 
-  // Motivational Messages
   const motivationalMessages = [
     "Consistency is Key! 🔑",
     "Every small step counts! 👣",
@@ -1186,7 +1162,6 @@
     ]
   };
 
-  // State Variables
   let baseValue = 16;
   let entries = [];
   let streakData = { count: 0, lastDate: "" };
@@ -1195,7 +1170,6 @@
   let editingDate = null;
   let bannerTimeout = null;
 
-  // Today Status Banner
   function updateTodayBanner() {
     const today = todayYMD();
     const todayEntry = entries.find(e => e.date === today);
@@ -1240,7 +1214,6 @@
     }, 3400);
   }
 
-  // Streak Calculation
   function calculateStreak() {
     if (!entries || entries.length === 0) {
       streakData = { count: 0, lastDate: "" };
@@ -1279,7 +1252,6 @@
     streakData.lastDate = streak > 0 ? toYMD(prevDate) : "";
   }
 
-  // Core Functions
   function init() {
     document.getElementById('baseInput').value = baseValue;
     
@@ -1373,7 +1345,6 @@
     }
   }
 
-  // Milestone Check
   function checkMilestones() {
     const current = entries.reduce((sum, entry) => sum + entry.val, baseValue);
     const netGrowth = current - baseValue;
@@ -1384,23 +1355,21 @@
       if (netGrowth >= point && !milestones[point]) {
         milestones[point] = true;
         
-        // Celebrate milestone
         setTimeout(() => {
           alert(`🎉 Congratulations! You've reached +${point} net growth! 🎉`);
           createConfetti();
         }, 1000);
         
-        // Save to cloud
         saveDataToCloud();
       }
     });
   }
 
-  // Edit / CRUD Functions
+  // ================= MODIFIED INTERACTION FUNCTIONS =================
   function addEntry(date, val, type) {
     entries = entries.filter(e => e.date !== date);
     entries.push({ date, val, type });
-    saveDataToCloud();
+    saveDataToCloud(); // AUTO-SYNC
     calculateStreak();
     render();
     
@@ -1416,7 +1385,7 @@
   function deleteEntry(date) {
     if (confirm('Delete this entry?')) {
       entries = entries.filter(e => e.date !== date);
-      saveDataToCloud();
+      saveDataToCloud(); // AUTO-SYNC
       calculateStreak();
       render();
       
@@ -1457,7 +1426,7 @@
     if (idx > -1) {
       entries[idx].val = clampedValue;
       entries[idx].type = 'manual';
-      saveDataToCloud();
+      saveDataToCloud(); // AUTO-SYNC
       calculateStreak();
       render();
       
@@ -1475,28 +1444,68 @@
     editingDate = null;
   }
 
-  // Save Data to Cloud
-  function saveDataToCloud() {
-    if (!currentUserId) return;
-    
-    const data = {
-      baseValue: baseValue,
-      entries: entries,
-      streakData: streakData,
-      milestones: milestones,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    
-    saveUserData(data);
-  }
-
   function saveBaseSettings() {
     baseValue = parseFloat(document.getElementById('baseInput').value) || 16;
-    saveDataToCloud();
+    saveDataToCloud(); // AUTO-SYNC
     render();
   }
 
-  // Render Function
+  // ================= MODIFIED IMPORT FUNCTION =================
+  function importData(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const d = JSON.parse(e.target.result);
+        entries = Array.isArray(d.entries) ? d.entries : [];
+        baseValue = typeof d.base === 'number' ? d.base : 16;
+        streakData = d.streak || { count: 0, lastDate: "" };
+        milestones = d.milestones || {"5": false, "10": false, "20": false, "50": false};
+        
+        saveDataToCloud(); // AUTO-SYNC ON IMPORT
+        init();
+        updateTodayBanner();
+        createConfetti();
+        
+      } catch (err) { 
+        alert('Invalid JSON file'); 
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function resetAll() {
+    if (confirm('Warning: This will delete ALL your data permanently!')) {
+      entries = [];
+      baseValue = 16;
+      streakData = { count: 0, lastDate: "" };
+      milestones = {"5": false, "10": false, "20": false, "50": false};
+      
+      saveDataToCloud(); // AUTO-SYNC ON RESET
+      render();
+      openDailyModal();
+    }
+  }
+
+  function exportData() {
+    const dataStr = JSON.stringify({ 
+      base: baseValue, 
+      entries,
+      streak: streakData,
+      milestones: milestones
+    });
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `growth_data_${todayYMD()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showSyncIndicator('success', 1000);
+  }
+
+  // ================= RENDER FUNCTION =================
   function render() {
     entries.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
     calculateStreak();
@@ -1507,7 +1516,6 @@
       return { ...e, total: parseFloat(current.toFixed(2)) };
     });
 
-    // Update Stats
     const netGrowth = current - baseValue;
     const currentElem = document.getElementById('dispCurrent');
     const growthElem = document.getElementById('dispGrowth');
@@ -1518,7 +1526,6 @@
     
     document.getElementById('dispDays').innerText = entries.length;
 
-    // Calculate Average Daily Growth
     const currentVal = tableData.length ? tableData[tableData.length - 1].total : baseValue;
     const totalGrowth = currentVal - baseValue;
     const days = entries.length;
@@ -1528,7 +1535,6 @@
     avgGrowthElem.innerHTML = (avgGrowth >= 0 ? '+' : '') + avgGrowth.toFixed(2);
     avgGrowthElem.className = 'stat-value ' + (avgGrowth >= 0 ? 'text-green' : 'text-red');
 
-    // Update Progress Bars
     const currentProgress = document.getElementById('currentProgress');
     const growthProgress = document.getElementById('growthProgress');
     
@@ -1540,7 +1546,6 @@
       growthProgress.style.width = growthTargetWidth + '%';
     }, 100);
 
-    // Update Achievement Badges
     const badgeContainer = document.getElementById('achievementBadges');
     badgeContainer.innerHTML = '';
 
@@ -1551,7 +1556,6 @@
       badgeContainer.appendChild(streakBadge);
     }
 
-    // Render Table
     const tbody = document.getElementById('logTable');
     tbody.innerHTML = '';
     
@@ -1711,7 +1715,6 @@
       }
     });
     
-    // Update chart info
     const chartInfo = document.getElementById('chartInfo');
     if (data.length > 0) {
       const firstDate = formatShort(data[0].date);
@@ -1722,62 +1725,7 @@
     }
   }
 
-  // Import/Export/Reset
-  function exportData() {
-    const dataStr = JSON.stringify({ 
-      base: baseValue, 
-      entries,
-      streak: streakData,
-      milestones: milestones
-    });
-    const blob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `growth_data_${todayYMD()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showSyncStatus('✅ Data exported');
-  }
-
-  function importData(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const d = JSON.parse(e.target.result);
-        entries = Array.isArray(d.entries) ? d.entries : [];
-        baseValue = typeof d.base === 'number' ? d.base : 16;
-        streakData = d.streak || { count: 0, lastDate: "" };
-        milestones = d.milestones || {"5": false, "10": false, "20": false, "50": false};
-        
-        saveDataToCloud();
-        init();
-        updateTodayBanner();
-        createConfetti();
-        showSyncStatus('✅ Data imported');
-      } catch (err) { 
-        alert('Invalid JSON file'); 
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  function resetAll() {
-    if (confirm('Warning: This will delete ALL your data permanently!')) {
-      entries = [];
-      baseValue = 16;
-      streakData = { count: 0, lastDate: "" };
-      milestones = {"5": false, "10": false, "20": false, "50": false};
-      
-      saveDataToCloud();
-      render();
-      openDailyModal();
-    }
-  }
-
-  // Event Listeners
+  // ================= EVENT LISTENERS =================
   document.getElementById('dailyInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') submitDaily();
   });
@@ -1786,7 +1734,6 @@
     if (e.key === 'Enter') saveEdit();
   });
 
-  // Input validation
   document.getElementById('dailyInput').addEventListener('input', function(e) {
     this.value = this.value.replace(/[^0-9.\-]/g, '');
     
@@ -1815,7 +1762,6 @@
     }
   });
 
-  // Auto-check for new day
   setInterval(() => {
     const today = todayYMD();
     const hasToday = entries.some(e => e.date === today);
@@ -1825,13 +1771,10 @@
   }, 60000);
 
   // ================= FIREBASE AUTH STATE LISTENER =================
-  // Check if user is already logged in
   auth.onAuthStateChanged((user) => {
     if (user) {
-      // User is signed in
       loadApp(user);
     } else {
-      // User is signed out
       document.getElementById('authContainer').style.display = 'flex';
       document.getElementById('appContainer').style.display = 'none';
     }
