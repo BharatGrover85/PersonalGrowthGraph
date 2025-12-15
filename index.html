@@ -613,7 +613,7 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap:10px;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <label style="font-weight: 600;">Starting Base:</label>
-          <input type="number" id="baseInput" value="16" style="width: 90px; padding: 6px; margin:0; font-size: 1rem;">
+          <input type="number" id="baseInput" value="-800" style="width: 90px; padding: 6px; margin:0; font-size: 1rem;">
           <button onclick="saveBaseSettings()" class="ghost small">Update</button>
         </div>
         <div>
@@ -848,7 +848,7 @@
 
   async function initializeUserData(uid) {
     const initialData = {
-      baseValue: 16,
+      baseValue: -800,
       entries: [],
       streakData: { count: 0, lastDate: "" },
       milestones: { "5": false, "10": false, "20": false, "50": false },
@@ -969,7 +969,7 @@
         });
         
         const remoteDataStr = JSON.stringify({
-          baseValue: remoteData.baseValue || 16,
+          baseValue: remoteData.baseValue || -800,
           entries: remoteData.entries || [],
           streakData: remoteData.streakData || { count: 0, lastDate: "" },
           milestones: remoteData.milestones || { "5": false, "10": false, "20": false, "50": false }
@@ -978,7 +978,7 @@
         if (localDataStr !== remoteDataStr) {
           showSyncIndicator('syncing');
           
-          baseValue = remoteData.baseValue || 16;
+          baseValue = remoteData.baseValue || -800;
           entries = remoteData.entries || [];
           streakData = remoteData.streakData || { count: 0, lastDate: "" };
           milestones = remoteData.milestones || { "5": false, "10": false, "20": false, "50": false };
@@ -1019,7 +1019,7 @@
       const growthData = await loadUserData(user.uid);
       
       if (growthData) {
-        baseValue = growthData.baseValue || 16;
+        baseValue = growthData.baseValue || -800;
         entries = growthData.entries || [];
         streakData = growthData.streakData || { count: 0, lastDate: "" };
         milestones = growthData.milestones || { "5": false, "10": false, "20": false, "50": false };
@@ -1162,7 +1162,7 @@
     ]
   };
 
-  let baseValue = 16;
+  let baseValue = -800;
   let entries = [];
   let streakData = { count: 0, lastDate: "" };
   let milestones = { "5": false, "10": false, "20": false, "50": false };
@@ -1445,7 +1445,7 @@
   }
 
   function saveBaseSettings() {
-    baseValue = parseFloat(document.getElementById('baseInput').value) || 16;
+    baseValue = parseFloat(document.getElementById('baseInput').value) || -800;
     saveDataToCloud(); // AUTO-SYNC
     render();
   }
@@ -1459,7 +1459,7 @@
       try {
         const d = JSON.parse(e.target.result);
         entries = Array.isArray(d.entries) ? d.entries : [];
-        baseValue = typeof d.base === 'number' ? d.base : 16;
+        baseValue = typeof d.base === 'number' ? d.base : -800;
         streakData = d.streak || { count: 0, lastDate: "" };
         milestones = d.milestones || {"5": false, "10": false, "20": false, "50": false};
         
@@ -1478,7 +1478,7 @@
   function resetAll() {
     if (confirm('Warning: This will delete ALL your data permanently!')) {
       entries = [];
-      baseValue = 16;
+      baseValue = -800;
       streakData = { count: 0, lastDate: "" };
       milestones = {"5": false, "10": false, "20": false, "50": false};
       
