@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Growth Graph 🔥</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+
+  <style>
+    :root {
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --primary: #6366f1;
+      --secondary: #8b5cf6;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color-scheme: light dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .subtitle {
+      opacity: 0.9;
+      margin-top: 8px;
+    }
+
+    /* Today Status Banner */
+    .today-status {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+      animation: fadeIn 0.4s ease;
+      display: none;
+      /* Hidden by default */
+    }
+
+    .today-status.negative {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      margin-bottom: 24px;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #111827;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover .stat-value {
+      transform: scale(1.05);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: #6b7280;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    .text-green {
+      color: var(--success);
+    }
+
+    .text-red {
+      color: var(--danger);
+    }
+
+    /* Chart Container */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* Buttons */
+    button {
+      cursor: pointer;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      background: var(--primary);
+      color: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    button:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+
+      20% {
+        transform: scale(25, 25);
+        opacity: 0.3;
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(40, 40);
+      }
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button.ghost {
+      background: transparent;
+      color: #4b5563;
+      border: 1px solid #d1d5db;
+    }
+
+    button.ghost:hover {
+      background: #f3f4f6;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    button.warn {
+      background: var(--danger);
+    }
+
+    button.warn:hover {
+      box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    button.small {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+
+    button.success {
+      background: var(--success);
+    }
+
+    button.success:hover {
+      box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Table */
+    .table-responsive {
+      overflow-x: auto;
+      max-height: 400px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px;
+      color: #6b7280;
+      border-bottom: 2px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      background: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #f3f4f6;
+      transition: background-color 0.2s;
+    }
+
+    tr:hover td {
+      background-color: #f9fafb;
+    }
+
+    tr.penalty-row {
+      background-color: #fef2f2;
+    }
+
+    tr.penalty-row td {
+      color: #991b1b;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: inline-block;
+      transition: transform 0.2s;
+    }
+
+    .badge:hover {
+      transform: scale(1.05);
+    }
+
+    .badge-green {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+
+    .badge-red {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+
+    .badge-auto {
+      background: linear-gradient(135deg, #ffedd5, #fed7aa);
+      color: #9a3412;
+      border: 1px solid #fdba74;
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal {
+      background: white;
+      padding: 30px;
+      border-radius: 24px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 10px 0;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 10px 0;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .range-info {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 5px;
+      text-align: center;
+    }
+
+    /* Streak Counter */
+    .streak-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .streak-count {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--warning);
+      text-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+    }
+
+    .streak-fire {
+      animation: firePulse 1.5s infinite;
+    }
+
+    @keyframes firePulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      width: 100%;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 3px;
+      width: 0%;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Achievement Badges */
+    .badge-container {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      justify-content: center;
+    }
+
+    .achievement-badge {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #78350f;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      animation: badgeGlow 2s infinite;
+    }
+
+    @keyframes badgeGlow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+      }
+
+      50% {
+        box-shadow: 0 0 15px rgba(251, 191, 36, 0.8);
+      }
+    }
+
+    /* Celebration Animation */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      opacity: 0;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      table {
+        min-width: 100%;
+      }
+
+      .today-status {
+        padding: 15px;
+      }
+
+      .today-status>div:first-child {
+        flex: 1;
+      }
+
+      #todayStatusEmoji {
+        font-size: 2.5rem;
+      }
+
+      .chart-container {
+        height: 250px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Login UI removed: handled by parent -->
+
+  <div class="container">
+    <!-- Today Status Banner -->
+    <div id="todayStatusBanner" class="today-status" style="display:none;">
+      <div>
+        <div style="font-weight:700; opacity:0.9; font-size: 0.9rem;">AAJ KA DIN</div>
+        <div id="todayStatusText" style="font-size:1.5rem; font-weight:800; margin-top: 4px;"></div>
+        <div id="todayStatusSubtext" style="font-size:0.9rem; opacity:0.8; margin-top: 4px;"></div>
+      </div>
+      <div id="todayStatusEmoji" style="font-size:3rem;">🔥</div>
+    </div>
+
+    <div class="header">
+      <h1>🚀 Personal Growth Graph</h1>
+      <p class="subtitle" id="motivationalQuote">Consistency is Key</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="dispCurrent">0</div>
+        <div class="stat-label">Current Value</div>
+        <div class="progress-container">
+          <div class="progress-bar" id="currentProgress"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="dispGrowth">0</div>
+        <div class="stat-label">Net Growth</div>
+        <div class="progress-container">
+          <div class="progress-bar" id="growthProgress"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="dispDays">0</div>
+        <div class="stat-label">Days Tracked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="dispAvgGrowth">0</div>
+        <div class="stat-label">Avg Daily Growth</div>
+        <div class="badge-container" id="achievementBadges"></div>
+      </div>
+    </div>
+
+    <!-- Main Chart -->
+    <div class="card">
+      <div class="chart-container">
+        <canvas id="mainChart"></canvas>
+      </div>
+      <div style="text-align: center; margin-top: 15px; color: #6b7280; font-size: 0.9rem;">
+        <span id="chartInfo">Hover over points for details</span>
+      </div>
+    </div>
+
+    <!-- Settings & Data -->
+    <div class="card">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap:10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <label style="font-weight: 600;">Starting Base:</label>
+          <input type="number" id="baseInput" value="-800"
+            style="width: 90px; padding: 6px; margin:0; font-size: 1rem;">
+          <button onclick="saveBaseSettings()" class="ghost small">Update</button>
+        </div>
+        <div>
+          <button onclick="exportData()" class="ghost small">⬇ Export</button>
+          <button onclick="document.getElementById('importFile').click()" class="ghost small">⬆ Import</button>
+          <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(this)">
+          <button onclick="resetAll()" class="warn small">Reset</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Growth</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="logTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Entry Modal -->
+  <div class="modal-overlay" id="dailyModal">
+    <div class="modal">
+      <h2>Aaj ka din kaisa raha? 🤔</h2>
+      <p style="color: #6b7280; margin-bottom: 15px;">
+        Aaj ke points enter karein. <br>
+        <small style="color: var(--danger)">*Skip karne par -1 auto-penalty lagegi.*</small>
+      </p>
+      <input type="text" id="dailyInput" placeholder="-5 se +5 tak" autofocus>
+      <div class="range-info">Range: -5 to +5</div>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button onclick="submitDaily()" style="flex: 1;" class="success">Save Entry</button>
+      </div>
+      <button onclick="skipDaily()" class="ghost" style="width: 100%; margin-top: 10px; border: none;">Skip (-1
+        Point)</button>
+    </div>
+  </div>
+
+  <!-- Edit Entry Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h2>Edit Entry ✏️</h2>
+      <p id="editDateDisplay" style="color: #6b7280; font-weight: 600;"></p>
+      <input type="text" id="editInput">
+      <div class="range-info">Range: -5 to +5</div>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button onclick="saveEdit()" style="flex: 1;">Update</button>
+        <button onclick="closeEdit()" class="ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ================= Utilities (Local-date safe) =================
+    const KEYS = {
+      BASE: 'pg_base',
+      DATA: 'pg_data',
+      LAST_VISIT: 'pg_last_visit',
+      STREAK: 'pg_streak',
+      MILESTONES: 'pg_milestones'
+    };
+
+    const toYMD = (d) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    const todayYMD = () => toYMD(new Date());
+
+    const parseYMD = (s) => {
+      const [y, m, d] = s.split('-').map(Number);
+      const dt = new Date();
+      dt.setHours(0, 0, 0, 0);
+      dt.setFullYear(y, m - 1, d);
+      return dt;
+    };
+
+    const addDays = (date, days) => {
+      const d = new Date(date.getTime());
+      d.setDate(d.getDate() + days);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    };
+
+    const formatShort = (s) => {
+      const d = parseYMD(s);
+      return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+    };
+
+    const daysBetween = (date1, date2) => {
+      const diffTime = Math.abs(date2 - date1);
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    };
+
+    // ================= Input Validation Functions =================
+    function clampValue(value) {
+      return Math.max(-5, Math.min(5, value));
+    }
+
+    function parseInputValue(inputStr) {
+      if (!inputStr || inputStr === '-' || inputStr === '') {
+        return 0;
+      }
+
+      const cleaned = inputStr.replace(/[^0-9.\-]/g, '');
+      const num = parseFloat(cleaned);
+
+      if (isNaN(num)) {
+        return 0;
+      }
+
+      return clampValue(num);
+    }
+
+    function formatInputValue(value) {
+      if (value === 0) {
+        return '-';
+      }
+      return value.toString();
+    }
+
+    // ================= Celebration Functions =================
+    function createConfetti() {
+      const colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
+
+      for (let i = 0; i < 150; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.backgroundColor = color;
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.top = '-10px';
+        confetti.style.width = Math.random() * 10 + 5 + 'px';
+        confetti.style.height = Math.random() * 10 + 5 + 'px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+
+        document.body.appendChild(confetti);
+
+        const animation = confetti.animate([
+          {
+            transform: `translate(0, 0) rotate(0deg)`,
+            opacity: 1
+          },
+          {
+            transform: `translate(${Math.random() * 200 - 100}px, 100vh) rotate(${Math.random() * 720}deg)`,
+            opacity: 0
+          }
+        ], {
+          duration: Math.random() * 3000 + 2000,
+          easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
+        });
+
+        animation.onfinish = () => confetti.remove();
+      }
+    }
+
+    function playSuccessSound() {
+      // Create a pleasant success sound using Web Audio API
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+        oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+        oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } catch (e) {
+        console.log("Audio not supported");
+      }
+    }
+
+    function playNegativeSound() {
+      // Create a negative sound
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.setValueAtTime(220, audioContext.currentTime); // A3
+        oscillator.frequency.setValueAtTime(196, audioContext.currentTime + 0.1); // G3
+        oscillator.frequency.setValueAtTime(174.61, audioContext.currentTime + 0.2); // F3
+
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } catch (e) {
+        console.log("Audio not supported");
+      }
+    }
+
+    function vibrateDevice(pattern = [100, 50, 100]) {
+      if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+      }
+    }
+
+    // ================= Motivational Messages =================
+    const motivationalMessages = [
+      "Consistency is Key! 🔑",
+      "Every small step counts! 👣",
+      "Keep pushing forward! 💪",
+      "Growth is a journey, not a destination! 🚗",
+      "You're doing great! 🌟",
+      "Progress, not perfection! 📈",
+      "Stay committed to your growth! 🌱",
+      "Your future self will thank you! 🙏",
+      "Small improvements add up! 🎯",
+      "Keep the momentum going! ⚡"
+    ];
+
+    const dailyMessages = {
+      positive: [
+        "Amazing work today! 🎉",
+        "You're on fire! 🔥",
+        "Incredible progress! 🚀",
+        "Keep it up! 👍",
+        "You're unstoppable! 💥"
+      ],
+      negative: [
+        "Tomorrow is a new day! 🌅",
+        "Learn and move forward! 📚",
+        "Setback is setup for comeback! 💪",
+        "Keep going, you got this! 🙌",
+        "Progress isn't always linear! 📉➡📈"
+      ]
+    };
+
+    // ================= State =================
+    let baseValue = parseFloat(localStorage.getItem(KEYS.BASE)) || -800;
+    let entries = JSON.parse(localStorage.getItem(KEYS.DATA) || '[]');
+    let streakData = JSON.parse(localStorage.getItem(KEYS.STREAK) || '{"count": 0, "lastDate": ""}');
+    let milestones = JSON.parse(localStorage.getItem(KEYS.MILESTONES) || '{"5": false, "10": false, "20": false, "50": false}');
+    let chartInstance = null;
+    let editingDate = null;
+    let bannerTimeout = null;
+
+    // ================= Today Status Banner =================
+    function updateTodayBanner() {
+      const today = todayYMD();
+      const todayEntry = entries.find(e => e.date === today);
+      const banner = document.getElementById('todayStatusBanner');
+      const statusText = document.getElementById('todayStatusText');
+      const statusSubtext = document.getElementById('todayStatusSubtext');
+      const statusEmoji = document.getElementById('todayStatusEmoji');
+
+      if (bannerTimeout) {
+        clearTimeout(bannerTimeout);
+        bannerTimeout = null;
+      }
+
+      if (!todayEntry) {
+        banner.style.display = 'none';
+        return;
+      }
+
+      banner.style.display = 'flex';
+      const val = todayEntry.val;
+
+      if (val >= 0) {
+        banner.className = 'today-status';
+        statusText.innerText = `+${val} Points Gained!`;
+        const randomMsg = dailyMessages.positive[Math.floor(Math.random() * dailyMessages.positive.length)];
+        statusSubtext.innerText = randomMsg;
+        statusEmoji.innerText = val > 1 ? '🚀' : (val === 1 ? '🔥' : '👍');
+
+        if (val >= 3) {
+          playSuccessSound();
+          createConfetti();
+        }
+      } else {
+        banner.className = 'today-status negative';
+        statusText.innerText = `${val} Points (Degrowth)`;
+        const randomMsg = dailyMessages.negative[Math.floor(Math.random() * dailyMessages.negative.length)];
+        statusSubtext.innerText = randomMsg;
+        statusEmoji.innerText = '📉';
+        playNegativeSound();
+        vibrateDevice([100, 50, 100]);
+      }
+
+      bannerTimeout = setTimeout(() => {
+        banner.style.display = 'none';
+      }, 3400);
+    }
+
+    // ================= Streak Calculation =================
+    function calculateStreak() {
+      if (!entries || entries.length === 0) {
+        streakData = { count: 0, lastDate: "" };
+        localStorage.setItem(KEYS.STREAK, JSON.stringify(streakData));
+        return;
+      }
+
+      // Sort entries by date ASC
+      entries.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
+
+      let streak = 0;
+      let prevDate = null;
+
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const entry = entries[i];
+        const entryDate = parseYMD(entry.date);
+
+        // ❌ Break streak if auto / skipped OR negative manual
+        if (entry.type !== 'manual' || entry.val < 0) {
+          break;
+        }
+
+        // First valid streak day
+        if (!prevDate) {
+          streak = 1;
+          prevDate = entryDate;
+          continue;
+        }
+
+        // Check if consecutive day
+        const diff = daysBetween(entryDate, prevDate);
+        if (diff === 1) {
+          streak++;
+          prevDate = entryDate;
+        } else {
+          break;
+        }
+      }
+
+      streakData.count = streak;
+      streakData.lastDate = streak > 0 ? toYMD(prevDate) : "";
+
+      localStorage.setItem(KEYS.STREAK, JSON.stringify(streakData));
+    }
+
+    // ================= Core =================
+    function init() {
+      // Set base input
+      document.getElementById('baseInput').value = baseValue;
+
+      // Update motivational quote
+      const randomIndex = Math.floor(Math.random() * motivationalMessages.length);
+      document.getElementById('motivationalQuote').textContent = motivationalMessages[randomIndex];
+
+      // If fresh start or after reset: immediately prompt for today's entry
+      if (!entries || entries.length === 0) {
+        entries = [];
+        render(); // show zeros/base in UI
+        setTimeout(() => {
+          openDailyModal();
+        }, 500);
+        return;
+      }
+
+      // Existing data: first apply missed-day penalties, then check today's prompt
+      processMissedDays();
+      calculateStreak();
+      checkTodayPrompt();
+      render();
+      updateTodayBanner();
+
+      // Check for milestones
+      checkMilestones();
+    }
+
+    function openDailyModal() {
+      const modal = document.getElementById('dailyModal');
+      modal.style.display = 'flex';
+
+      // Set default value with minus sign
+      const input = document.getElementById('dailyInput');
+      input.value = '-';
+
+      setTimeout(() => {
+        input.focus();
+        input.setSelectionRange(0, input.value.length);
+      }, 0);
+    }
+
+    // Apply -1 for each missed day between last entry and yesterday
+    function processMissedDays() {
+      if (!entries || entries.length === 0) return;
+
+      entries.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
+
+      const last = parseYMD(entries[entries.length - 1].date);
+      const today = parseYMD(todayYMD());
+      let curr = addDays(last, 1);
+
+      let changed = false;
+      while (curr < today) {
+        const ds = toYMD(curr);
+        if (!entries.find(e => e.date === ds)) {
+          entries.push({ date: ds, val: -1, type: 'auto' });
+          changed = true;
+        }
+        curr = addDays(curr, 1);
+      }
+
+      if (changed) saveData();
+    }
+
+    // Show daily prompt if today's entry not present
+    function checkTodayPrompt() {
+      const today = todayYMD();
+      const hasToday = entries.some(e => e.date === today);
+      if (!hasToday) {
+        setTimeout(() => {
+          openDailyModal();
+        }, 1000);
+      }
+    }
+
+    function submitDaily() {
+      const inputStr = document.getElementById('dailyInput').value;
+      const v = parseInputValue(inputStr);
+
+      const clampedValue = clampValue(v);
+
+      if (Math.abs(v) > 5) {
+        alert(`Value clamped to ${clampedValue} (range is -5 to +5)`);
+      }
+
+      addEntry(todayYMD(), clampedValue, 'manual');
+      document.getElementById('dailyModal').style.display = 'none';
+      document.getElementById('dailyInput').value = '';
+      vibrateDevice([50]);
+    }
+
+    function skipDaily() {
+      if (confirm("Are you sure? This will add -1 for today.")) {
+        addEntry(todayYMD(), -1, 'skipped');
+        document.getElementById('dailyModal').style.display = 'none';
+        document.getElementById('dailyInput').value = '';
+        vibrateDevice([100]);
+      }
+    }
+
+    // ================= Milestone Check =================
+    function checkMilestones() {
+      const current = entries.reduce((sum, entry) => sum + entry.val, baseValue);
+      const netGrowth = current - baseValue;
+
+      const milestonePoints = [5, 10, 20, 50];
+
+      milestonePoints.forEach(point => {
+        if (netGrowth >= point && !milestones[point]) {
+          milestones[point] = true;
+          localStorage.setItem(KEYS.MILESTONES, JSON.stringify(milestones));
+
+          // Celebrate milestone
+          setTimeout(() => {
+            alert(`🎉 Congratulations! You've reached +${point} net growth! 🎉`);
+            createConfetti();
+            playSuccessSound();
+          }, 1000);
+        }
+      });
+    }
+
+    // ================= Edit / CRUD =================
+    function addEntry(date, val, type) {
+      entries = entries.filter(e => e.date !== date);
+      entries.push({ date, val, type });
+      saveData();
+      calculateStreak();
+      render();
+
+      if (date === todayYMD()) {
+        setTimeout(() => {
+          updateTodayBanner();
+        }, 300);
+      }
+
+      checkMilestones();
+    }
+
+    function deleteEntry(date) {
+      if (confirm('Delete this entry?')) {
+        entries = entries.filter(e => e.date !== date);
+        saveData();
+        calculateStreak();
+        render();
+
+        if (date === todayYMD()) {
+          document.getElementById('todayStatusBanner').style.display = 'none';
+          checkTodayPrompt();
+        }
+        vibrateDevice([100, 50]);
+      }
+    }
+
+    window.openEdit = function (date) {
+      const entry = entries.find(e => e.date === date);
+      if (!entry) return;
+      editingDate = date;
+      document.getElementById('editDateDisplay').innerText = `Date: ${date}`;
+
+      document.getElementById('editInput').value = formatInputValue(entry.val);
+
+      document.getElementById('editModal').style.display = 'flex';
+      setTimeout(() => {
+        const input = document.getElementById('editInput');
+        input.focus();
+        input.setSelectionRange(0, input.value.length);
+      }, 0);
+    };
+
+    function saveEdit() {
+      const inputStr = document.getElementById('editInput').value;
+      const val = parseInputValue(inputStr);
+
+      const clampedValue = clampValue(val);
+
+      if (Math.abs(val) > 5) {
+        alert(`Value clamped to ${clampedValue} (range is -5 to +5)`);
+      }
+
+      const idx = entries.findIndex(e => e.date === editingDate);
+      if (idx > -1) {
+        entries[idx].val = clampedValue;
+        entries[idx].type = 'manual';
+        saveData();
+        calculateStreak();
+        render();
+
+        if (editingDate === todayYMD()) {
+          setTimeout(() => {
+            updateTodayBanner();
+          }, 300);
+        }
+        vibrateDevice([50]);
+      }
+      closeEdit();
+    }
+
+    function closeEdit() {
+      document.getElementById('editModal').style.display = 'none';
+      editingDate = null;
+    }
+
+    // ================= Persistence =================
+    function saveData() {
+      localStorage.setItem(KEYS.DATA, JSON.stringify(entries));
+      localStorage.setItem(KEYS.BASE, baseValue);
+      localStorage.setItem(KEYS.STREAK, JSON.stringify(streakData));
+      localStorage.setItem(KEYS.MILESTONES, JSON.stringify(milestones));
+
+      if (currentUser) {
+        saveUserData(currentUser.uid, {
+          baseValue,
+          entries,
+          streakData,
+          milestones,
+          theme: localStorage.getItem("pg_theme"),
+          updatedAt: Date.now()
+        });
+      }
+    }
+    function saveBaseSettings() {
+      baseValue = parseFloat(document.getElementById('baseInput').value) || 16;
+      localStorage.setItem(KEYS.BASE, baseValue);
+      vibrateDevice([50]);
+      render();
+    }
+
+    // ================= Render =================
+    function render() {
+      entries.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
+      calculateStreak();
+
+      let current = baseValue;
+      const tableData = entries.map(e => {
+        current += e.val;
+        return { ...e, total: parseFloat(current.toFixed(2)) };
+      });
+
+      // Update Stats
+      const netGrowth = current - baseValue;
+      const currentElem = document.getElementById('dispCurrent');
+      const growthElem = document.getElementById('dispGrowth');
+
+      currentElem.innerText = current.toFixed(2);
+      growthElem.innerHTML = (netGrowth >= 0 ? '+' : '') + netGrowth.toFixed(2);
+      growthElem.className = 'stat-value ' + (netGrowth >= 0 ? 'text-green' : 'text-red');
+
+      document.getElementById('dispDays').innerText = entries.length;
+
+      // Calculate Average Daily Growth
+      const currentVal = tableData.length ? tableData[tableData.length - 1].total : baseValue;
+      const totalGrowth = currentVal - baseValue;
+      const days = entries.length;
+      const avgGrowth = days > 0 ? (totalGrowth / days) : 0;
+
+      const avgGrowthElem = document.getElementById('dispAvgGrowth');
+      avgGrowthElem.innerHTML = (avgGrowth >= 0 ? '+' : '') + avgGrowth.toFixed(2);
+      avgGrowthElem.className = 'stat-value ' + (avgGrowth >= 0 ? 'text-green' : 'text-red');
+
+      // Update Progress Bars
+      const currentProgress = document.getElementById('currentProgress');
+      const growthProgress = document.getElementById('growthProgress');
+
+      // Animate progress bars
+      setTimeout(() => {
+        const currentTargetWidth = Math.min(100, (current / (baseValue * 2)) * 100);
+        const growthTargetWidth = Math.min(100, Math.max(0, 50 + (netGrowth / baseValue) * 50));
+
+        currentProgress.style.width = currentTargetWidth + '%';
+        growthProgress.style.width = growthTargetWidth + '%';
+      }, 100);
+
+      // Update Streak
+      // (Removed streak fire/count from Days Tracked card)
+
+      // Update Achievement Badges
+      const badgeContainer = document.getElementById('achievementBadges');
+      badgeContainer.innerHTML = '';
+
+      if (streakData.count > 0) {
+        const streakBadge = document.createElement('div');
+        streakBadge.className = 'achievement-badge';
+        streakBadge.innerHTML = `🔥 ${streakData.count}-Day Streak`;
+        badgeContainer.appendChild(streakBadge);
+      }
+
+      // Render Table (latest first)
+      const tbody = document.getElementById('logTable');
+      tbody.innerHTML = '';
+
+      [...tableData].reverse().forEach((row, index) => {
+        const isPos = row.val >= 0;
+        const isAuto = row.type === 'auto' || row.type === 'skipped';
+        const badgeClass = isAuto ? 'badge-auto' : (isPos ? 'badge-green' : 'badge-red');
+        const badgeText = isAuto ? (row.type === 'skipped' ? 'Skipped (-1)' : 'Auto (-1)') : (isPos ? `+${row.val}` : row.val);
+
+        const tr = document.createElement('tr');
+        if (isAuto) tr.classList.add('penalty-row');
+
+        // Add animation delay for each row
+        tr.style.animationDelay = `${index * 0.05}s`;
+
+        tr.innerHTML = `
+        <td>${row.date}</td>
+        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+        <td style="font-weight:bold">${row.total}</td>
+        <td style="font-size:0.85rem; color:#6b7280;">${row.type || 'manual'}</td>
+        <td>
+          <button class="ghost small" onclick="openEdit('${row.date}')">Edit</button>
+          <button class="ghost small" onclick="deleteEntry('${row.date}')" style="color:#ef4444; border-color:#fee2e2;">×</button>
+        </td>
+      `;
+        tbody.appendChild(tr);
+      });
+
+      renderChart(tableData);
+    }
+
+    function renderChart(data) {
+      const ctx = document.getElementById('mainChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      // Create gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+      gradient.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
+      gradient.addColorStop(1, 'rgba(99, 102, 241, 0.05)');
+
+      const labels = data.map(d => formatShort(d.date));
+      const values = data.map(d => d.total);
+
+      // Calculate min and max for better y-axis scaling
+      const minValue = Math.min(...values, baseValue) * 0.95;
+      const maxValue = Math.max(...values, baseValue) * 1.05;
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Growth Value',
+              data: values,
+              borderColor: '#6366f1',
+              backgroundColor: gradient,
+              fill: true,
+              tension: 0.4,
+              borderWidth: 3,
+              pointRadius: 4,
+              pointBackgroundColor: '#ffffff',
+              pointBorderColor: '#6366f1',
+              pointBorderWidth: 2,
+              pointHoverRadius: 6,
+              pointHoverBackgroundColor: '#ffffff',
+              pointHoverBorderColor: '#6366f1',
+              pointHoverBorderWidth: 3
+            },
+            {
+              label: 'Starting Base',
+              data: Array(values.length).fill(baseValue),
+              borderColor: '#9ca3af',
+              borderWidth: 1,
+              borderDash: [5, 5],
+              fill: false,
+              pointRadius: 0,
+              tension: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              titleColor: '#111827',
+              bodyColor: '#374151',
+              borderColor: '#6366f1',
+              borderWidth: 1,
+              cornerRadius: 8,
+              padding: 12,
+              callbacks: {
+                label: function (context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    label += context.parsed.y.toFixed(2);
+                  }
+                  return label;
+                },
+                afterLabel: function (context) {
+                  if (context.datasetIndex === 0 && data[context.dataIndex]) {
+                    const entry = data[context.dataIndex];
+                    const dailyChange = entry.val;
+                    return `Daily: ${dailyChange >= 0 ? '+' : ''}${dailyChange}`;
+                  }
+                  return '';
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)',
+                drawBorder: false
+              },
+              ticks: {
+                color: '#6b7280',
+                font: {
+                  size: 12
+                },
+                callback: function (value) {
+                  return value.toFixed(1);
+                }
+              },
+              min: minValue,
+              max: maxValue
+            },
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                color: '#6b7280',
+                font: {
+                  size: 11
+                },
+                maxRotation: 45
+              }
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          elements: {
+            line: {
+              tension: 0.4
+            }
+          },
+          animation: {
+            duration: 1000,
+            easing: 'easeOutQuart'
+          }
+        }
+      });
+
+      // Update chart info
+      const chartInfo = document.getElementById('chartInfo');
+      if (data.length > 0) {
+        const firstDate = formatShort(data[0].date);
+        const lastDate = formatShort(data[data.length - 1].date);
+        chartInfo.textContent = `Tracking from ${firstDate} to ${lastDate} • ${data.length} days • Streak: ${streakData.count}`;
+      } else {
+        chartInfo.textContent = 'No data yet. Add your first entry!';
+      }
+    }
+
+    // ================= Import/Export/Reset =================
+    function exportData() {
+      const dataStr = JSON.stringify({
+        base: baseValue,
+        entries,
+        streak: streakData,
+        milestones: milestones
+      });
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `growth_data_${todayYMD()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      playSuccessSound();
+    }
+
+    function importData(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const d = JSON.parse(e.target.result);
+          entries = Array.isArray(d.entries) ? d.entries : [];
+          baseValue = typeof d.base === 'number' ? d.base : 16;
+          streakData = d.streak || { count: 0, lastDate: "" };
+          milestones = d.milestones || { "5": false, "10": false, "20": false, "50": false };
+
+          localStorage.setItem(KEYS.BASE, baseValue);
+          localStorage.setItem(KEYS.STREAK, JSON.stringify(streakData));
+          localStorage.setItem(KEYS.MILESTONES, JSON.stringify(milestones));
+
+          saveData();
+          init();
+          updateTodayBanner();
+          createConfetti();
+          playSuccessSound();
+        } catch (err) {
+          alert('Invalid JSON file');
+          playNegativeSound();
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAll() {
+      if (confirm('Warning: This will delete ALL data permanently!')) {
+        localStorage.clear();
+        playNegativeSound();
+        location.reload();
+      }
+    }
+
+    // ================= Event Listeners =================
+    document.getElementById('dailyInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitDaily();
+    });
+
+    document.getElementById('editInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') saveEdit();
+    });
+
+    // Real-time validation for daily input
+    document.getElementById('dailyInput').addEventListener('input', function (e) {
+      this.value = this.value.replace(/[^0-9.\-]/g, '');
+
+      if (this.value.includes('-')) {
+        const parts = this.value.split('-');
+        if (parts.length > 2) {
+          this.value = '-' + parts.slice(1).join('');
+        }
+        if (this.value.indexOf('-') > 0) {
+          this.value = this.value.replace('-', '');
+        }
+      }
+    });
+
+    // Real-time validation for edit input
+    document.getElementById('editInput').addEventListener('input', function (e) {
+      this.value = this.value.replace(/[^0-9.\-]/g, '');
+
+      if (this.value.includes('-')) {
+        const parts = this.value.split('-');
+        if (parts.length > 2) {
+          this.value = '-' + parts.slice(1).join('');
+        }
+        if (this.value.indexOf('-') > 0) {
+          this.value = this.value.replace('-', '');
+        }
+      }
+    });
+
+    // Add button click effect
+    document.addEventListener('click', function (e) {
+      if (e.target.tagName === 'BUTTON') {
+        vibrateDevice([30]);
+      }
+    });
+
+    // ================= Start =================
+    init();
+
+    // Auto-refresh every minute to check for new day
+    setInterval(() => {
+      const today = todayYMD();
+      const hasToday = entries.some(e => e.date === today);
+      if (!hasToday) {
+        checkTodayPrompt();
+      }
+    }, 60000); // Check every minute
+  </script>
+</body>
+
+</html>

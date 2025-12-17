@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Theme Switcher • Personal Growth Graph</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        :root {
+            --green: #30d158;
+            --blue: #64d2ff;
+            --glass: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.18);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #070a10;
+            color: #e5e7eb;
+            overflow: hidden;
+        }
+
+        /* ===== IFRAME ===== */
+
+        .frame-wrap {
+            position: absolute;
+            inset: 0;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+        }
+
+        /* subtle fade when switching */
+        .fade {
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0.6;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* ===== FLOATING STARK TOGGLE (EXPANDABLE) ===== */
+        .floating-toggle {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+        }
+
+        .floating-toggle .toggle-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+
+            padding: 8px;
+            border-radius: 999px;
+
+            background: rgba(12, 16, 20, 0.75);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+
+            box-shadow:
+                0 8px 26px rgba(0, 0, 0, 0.55),
+                inset 0 0 12px rgba(255, 255, 255, 0.04);
+
+            width: 52px;
+            overflow: hidden;
+            transition:
+                width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.25s ease,
+                background 0.25s ease;
+            will-change: width;
+        }
+
+        .floating-toggle:hover .toggle-wrap {
+            width: 168px;
+            box-shadow:
+                0 14px 36px rgba(0, 0, 0, 0.65),
+                inset 0 0 14px rgba(255, 255, 255, 0.06);
+        }
+
+        /* Icon button */
+        .floating-toggle button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(48, 209, 88, 0.55);
+            background: rgba(12, 16, 20, 0.85);
+            color: #30d158;
+            font-size: 1rem;
+            cursor: pointer;
+            /* Pixel-perfect centering */
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(16px);
+            box-shadow:
+                0 0 16px rgba(48, 209, 88, 0.35),
+                inset 0 0 10px rgba(48, 209, 88, 0.25);
+
+            flex-shrink: 0;
+            margin-left: 2px;
+        }
+
+        /* Label */
+        .floating-toggle .label {
+            white-space: nowrap;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            color: rgba(255, 255, 255, 0.9);
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.25s ease;
+        }
+
+        .floating-toggle:hover .label {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Clean theme state */
+        .floating-toggle button.clean {
+            color: #64d2ff;
+            border-color: rgba(100, 210, 255, 0.55);
+            box-shadow:
+                0 0 16px rgba(100, 210, 255, 0.35),
+                inset 0 0 10px rgba(100, 210, 255, 0.25);
+        }
+
+        /* ===== MOBILE: SIDE‑DOCK CHIP ===== */
+        @media (max-width: 640px) {
+            .floating-toggle {
+                left: auto;
+                right: -6px;
+                bottom: 40%;
+            }
+
+            .floating-toggle .toggle-wrap {
+                width: 52px;
+                border-radius: 14px 0 0 14px;
+            }
+
+            .floating-toggle:hover .toggle-wrap {
+                width: 52px;
+            }
+
+            .floating-toggle .label {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .collapse-arrow {
+                position: fixed;
+                right: 0;
+                top: 50%;
+                transform: translateY(-50%);
+
+                width: 56px;
+                height: 96px;
+                border-radius: 18px 0 0 18px;
+
+                background: rgba(12, 16, 20, 0.9);
+                backdrop-filter: blur(18px);
+                border: 1px solid rgba(255, 255, 255, 0.28);
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                color: #30d158;
+                font-size: 1.8rem;
+                font-weight: 900;
+                line-height: 1;
+
+                box-shadow:
+                    0 14px 34px rgba(0, 0, 0, 0.6),
+                    inset 0 0 18px rgba(48, 209, 88, 0.28);
+
+                cursor: grab;
+                z-index: 60;
+                transition: background 0.3s ease, box-shadow 0.3s ease;
+            }
+        }
+
+        @media (min-width: 641px) {
+            .collapse-arrow {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 🔐 GLOBAL AUTH -->
+    <div id="authRoot" style="
+  position:fixed;
+  inset:0;
+  background:#000;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+">
+        <div style="width:300px">
+            <h2 style="text-align:center;margin-bottom:12px">Login / Signup</h2>
+
+            <input id="authEmail" type="email" placeholder="Email" style="width:100%;padding:10px;margin-bottom:8px">
+
+            <input id="authPassword" type="password" placeholder="Password (min 6 chars)"
+                style="width:100%;padding:10px;margin-bottom:12px">
+
+            <button id="authLoginBtn" type="button" style="width:100%;padding:10px">Login</button>
+            <button id="authSignupBtn" type="button" style="width:100%;padding:10px;margin-top:6px">
+                Signup
+            </button>
+        </div>
+    </div>
+
+    <!-- === USER BAR (top right) === -->
+    <div id="userBar" style="
+      position:fixed;
+      top:12px;
+      right:16px;
+      z-index:80;
+      display:none;
+      gap:10px;
+      align-items:center;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(12,16,20,.75);
+      backdrop-filter:blur(16px);
+      border:1px solid rgba(255,255,255,.25);
+      box-shadow:0 8px 24px rgba(0,0,0,.45);
+    ">
+        <span id="userEmail" style="font-size:.75rem;font-weight:700;opacity:.9"></span>
+        <button id="logoutBtn" style="
+        padding:6px 10px;
+        border-radius:999px;
+        border:1px solid rgba(255,69,58,.6);
+        background:rgba(255,69,58,.15);
+        color:#fecaca;
+        font-size:.7rem;
+        font-weight:800;
+        cursor:pointer;
+      ">Logout</button>
+    </div>
+
+    <!-- APP CONTAINER -->
+    <div class="frame-wrap">
+        <iframe id="appFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+
+    <script>
+        const frame = document.getElementById('appFrame');
+
+        let currentTheme = localStorage.getItem('pg_theme') || 'stark';
+
+        function applyTheme(theme) {
+            const btn = document.getElementById('toggleBtn');
+            if (!btn) return;
+
+            frame.style.opacity = '0';
+
+            setTimeout(() => {
+                if (theme === 'clean') {
+                    frame.src = 'Graph 10 original.html';
+                    btn.classList.add('clean');
+                } else {
+                    frame.src = 'graph8.html';
+                    btn.classList.remove('clean');
+                }
+
+                localStorage.setItem('pg_theme', theme);
+
+                frame.onload = () => {
+                    frame.style.opacity = '1';
+                };
+            }, 180);
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'stark' ? 'clean' : 'stark';
+            applyTheme(currentTheme);
+        }
+    </script>
+
+    <!-- Floating Theme Toggle -->
+    <div class="floating-toggle collapsed" id="themeDock">
+        <button id="toggleBtn" onclick="toggleTheme()" aria-label="Switch Theme">⚡</button>
+        <div class="label">Switch Theme</div>
+    </div>
+
+    <script>
+        // Ensure applyTheme runs only after toggleBtn exists in DOM
+        applyTheme(currentTheme);
+    </script>
+    <script>
+        const dock = document.getElementById('themeDock');
+        let isDragging = false;
+        let offsetY = 0;
+
+        dock.addEventListener('touchstart', (e) => {
+            if (window.innerWidth > 640) return;
+            isDragging = true;
+            offsetY = e.touches[0].clientY - dock.getBoundingClientRect().top;
+            dock.style.transition = 'none';
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const y = e.touches[0].clientY - offsetY;
+            dock.style.top = `${y}px`;
+            dock.style.right = '0';
+        });
+
+        document.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            dock.style.transition = 'top 0.25s ease';
+        });
+
+        // ---- COLLAPSE LOGIC ----
+        const arrow = document.getElementById('collapseArrow');
+        let dockVisible = false;
+
+        if (arrow) {
+            arrow.addEventListener('click', () => {
+                dockVisible = !dockVisible;
+                dock.style.transform = dockVisible ? 'translateX(-52px)' : 'translateX(0)';
+                arrow.textContent = dockVisible ? '‹' : '›';
+                arrow.classList.toggle('active', dockVisible);
+            });
+        }
+    </script>
+    <script type="module">
+        import {
+            login,
+            signup,
+            multiBrowserLoginInit,
+            initAuthPersistence
+        } from "./firebase.js";
+        import { signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+        await initAuthPersistence();
+
+        multiBrowserLoginInit(
+            (user) => {
+                window.currentUser = user;
+                document.getElementById("authRoot").style.display = "none";
+                document.getElementById("userBar").style.display = "flex";
+                document.getElementById("userEmail").textContent = user.email;
+            },
+            () => {
+                window.currentUser = null;
+                document.getElementById("authRoot").style.display = "flex";
+                document.getElementById("userBar").style.display = "none";
+            }
+        );
+
+        document.getElementById("authLoginBtn").onclick = () => {
+            login(
+                document.getElementById("authEmail").value,
+                document.getElementById("authPassword").value
+            );
+        };
+
+        document.getElementById("authSignupBtn").onclick = () => {
+            signup(
+                document.getElementById("authEmail").value,
+                document.getElementById("authPassword").value
+            );
+        };
+
+        document.getElementById("logoutBtn").onclick = async () => {
+            await signOut(window.currentUser.auth);
+        };
+    </script>
+</body>
+
+</html>

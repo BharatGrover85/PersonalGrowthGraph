@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Growth Graph 🔥</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --success: #30d158;
+      --danger: #ff453a;
+      --warning: #ffd60a;
+
+      --primary: #30d158;
+      --secondary: #64d2ff;
+
+      --bg-gradient: linear-gradient(180deg,
+          #0b0f14 0%,
+          #111827 100%);
+
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      color: #e5e7eb;
+      overflow-y: auto;
+      overflow-x: hidden;
+      font-size: 15px;
+
+      /* Apple deep space background – NO top/bottom gradients */
+      background:
+        linear-gradient(180deg, #070a10 0%, #070a10 100%);
+    }
+
+    /* ===== DAY‑AWARE SIDE HEMI GLOWS ===== */
+
+    /* POSITIVE DAY → GREEN */
+    body.day-positive {
+      background:
+        radial-gradient(900px 900px at -12% 50%, rgba(48, 209, 88, 0.12), transparent 60%),
+        radial-gradient(900px 900px at 112% 50%, rgba(48, 209, 88, 0.10), transparent 60%),
+        linear-gradient(180deg, #070a10 0%, #070a10 100%);
+    }
+
+    /* NEGATIVE DAY → RED */
+    body.day-negative {
+      background:
+        radial-gradient(900px 900px at -12% 50%, rgba(255, 69, 58, 0.12), transparent 60%),
+        radial-gradient(900px 900px at 112% 50%, rgba(255, 69, 58, 0.10), transparent 60%),
+        linear-gradient(180deg, #070a10 0%, #070a10 100%);
+    }
+
+    /* ===== BACKGROUND PARTICLE FIELD ===== */
+    #bgParticles {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      touch-action: none;
+      opacity: 0.6;
+    }
+
+    /* ===== STARK SPACE DAY MOOD ===== */
+    body.day-positive #bgSpace {
+      filter: hue-rotate(0deg) saturate(1.1);
+    }
+
+    body.day-negative #bgSpace {
+      filter: hue-rotate(-20deg) saturate(1.2);
+    }
+
+    /* ===== STARK HUD CONTROL BUTTONS ===== */
+
+    .hud-control {
+      position: relative;
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.95);
+
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(14px);
+
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .hud-control::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.35),
+          transparent 70%);
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+
+    .hud-control:hover::after {
+      opacity: 1;
+      transform: translateX(100%);
+      transition: transform 0.6s ease;
+    }
+
+    .hud-control:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Color roles */
+    .hud-control.export {
+      border-color: rgba(100, 210, 255, 0.6);
+      box-shadow: 0 0 22px rgba(100, 210, 255, 0.25);
+    }
+
+    .hud-control.import {
+      border-color: rgba(16, 185, 129, 0.6);
+      box-shadow: 0 0 22px rgba(16, 185, 129, 0.25);
+    }
+
+    .hud-control.update {
+      border-color: rgba(245, 158, 11, 0.6);
+      box-shadow: 0 0 22px rgba(245, 158, 11, 0.25);
+    }
+
+    .hud-control.delete {
+      border-color: rgba(255, 69, 58, 0.6);
+      box-shadow: 0 0 22px rgba(255, 69, 58, 0.28);
+    }
+
+    .hud-control:active {
+      transform: scale(0.96);
+    }
+
+    .page-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.85;
+    }
+
+    .page-glow::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .page-positive::before {
+      box-shadow:
+        inset 14px 0 70px rgba(48, 209, 88, 0.10),
+        inset -14px 0 70px rgba(48, 209, 88, 0.10);
+    }
+
+    .page-negative::before {
+      box-shadow:
+        inset 14px 0 70px rgba(255, 69, 58, 0.10),
+        inset -14px 0 70px rgba(255, 69, 58, 0.10);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px;
+
+      min-height: 100vh;
+      overflow: visible;
+
+      /* smooth Apple-style scrolling */
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      scroll-snap-type: y proximity;
+      will-change: scroll-position;
+      position: relative;
+      z-index: 1;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .subtitle {
+      opacity: 0.9;
+      margin-top: 8px;
+      font-size: 0.85rem;
+    }
+
+    /* Today Status Banner */
+    .today-status {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+      animation: fadeIn 0.4s ease;
+      display: none;
+      /* Hidden by default */
+    }
+
+    .today-status.negative {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 22px;
+      padding: 24px;
+      margin-bottom: 24px;
+
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 20px 18px;
+
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+
+      border: 1px solid rgba(255, 255, 255, 0.14);
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: #ffffff;
+    }
+
+    .stat-label {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.72rem;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      margin-top: 12px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #30d158, #64d2ff);
+      border-radius: 999px;
+    }
+
+    th {
+      color: #9ca3af;
+      background: rgba(17, 24, 39, .95);
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    td {
+      color: #e5e7eb;
+      border-bottom: 1px solid rgba(255, 255, 255, .04);
+    }
+
+    .text-green {
+      color: var(--success);
+    }
+
+    .text-red {
+      color: var(--danger);
+    }
+
+    /* Chart Container */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* Buttons */
+    button {
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 14px;
+
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.95);
+
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(14px);
+
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.35),
+          transparent 70%);
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+
+    button:hover::before {
+      opacity: 1;
+      transform: translateX(100%);
+      transition: transform 0.6s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: scale(0.96);
+    }
+
+    button.ghost {
+      background: transparent;
+      color: #4b5563;
+      border: 1px solid #d1d5db;
+    }
+
+    button.ghost:hover {
+      background: #f3f4f6;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    button.warn {
+      background: var(--danger);
+    }
+
+    button.warn:hover {
+      box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    button.small {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+
+    button.success {
+      background: var(--success);
+    }
+
+    button.success:hover {
+      box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    body.day-positive button {
+      box-shadow: 0 0 18px rgba(48, 209, 88, 0.25);
+    }
+
+    body.day-negative button {
+      box-shadow: 0 0 18px rgba(255, 69, 58, 0.25);
+    }
+
+    /* Table */
+    .table-responsive {
+      overflow-x: auto;
+      max-height: 420px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(16px);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 0.7rem;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+
+      color: rgba(255, 255, 255, 0.92);
+
+      /* 🔑 STRONGER HEADER SEPARATION */
+      background: rgba(17, 24, 39, 0.92);
+
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+
+      position: sticky;
+      top: 0;
+      z-index: 10;
+
+      /* subtle depth */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    td {
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    tr:hover td {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    tr.penalty-row {
+      background: rgba(255, 69, 58, 0.10);
+    }
+
+    tr.penalty-row td {
+      color: #fecaca;
+    }
+
+    .badge {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .badge:hover {
+      transform: scale(1.05);
+    }
+
+    .badge-green {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+
+    .badge-red {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+
+    .badge-auto {
+      background: linear-gradient(135deg, #ffedd5, #fed7aa);
+      color: #9a3412;
+      border: 1px solid #fdba74;
+    }
+
+    /* ===== IRON MAN HUD ACTION BUTTONS ===== */
+
+    .table-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .hud-btn {
+      position: relative;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
+
+    .hud-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg,
+          transparent 20%,
+          rgba(255, 255, 255, 0.35),
+          transparent 80%);
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+
+    .hud-btn:hover::before {
+      opacity: 1;
+      transform: translateX(100%);
+      transition: transform 0.6s ease;
+    }
+
+    .hud-btn:hover {
+      transform: translateY(-1px) scale(1.05);
+    }
+
+    .hud-btn.edit {
+      border-color: rgba(100, 210, 255, 0.6);
+      color: #cfefff;
+      box-shadow: 0 0 18px rgba(100, 210, 255, 0.25);
+    }
+
+    .hud-btn.edit:hover {
+      background: rgba(100, 210, 255, 0.15);
+    }
+
+    .hud-btn.delete {
+      border-color: rgba(255, 69, 58, 0.6);
+      color: #fecaca;
+      box-shadow: 0 0 18px rgba(255, 69, 58, 0.25);
+    }
+
+    .hud-btn.delete:hover {
+      background: rgba(255, 69, 58, 0.15);
+    }
+
+    /* HUD STATUS CHIP */
+
+    .hud-status {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(10px);
+    }
+
+    .hud-status.manual {
+      color: #a7f3d0;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .hud-status.auto {
+      color: #fde68a;
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+    }
+
+    .hud-status.negative {
+      color: #fecaca;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+
+    /* Tony Stark row hover micro polish */
+    tbody tr {
+      transition: background 0.25s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal {
+      background: rgba(15, 18, 24, 0.88);
+      padding: 28px 26px;
+      border-radius: 26px;
+      width: 92%;
+      max-width: 420px;
+
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+
+      border: 1px solid rgba(255, 255, 255, 0.18);
+
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+      animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal h2 {
+      color: #ffffff;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .modal p {
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .modal button {
+      border-radius: 14px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .modal button.success {
+      background: linear-gradient(135deg, #30d158, #22c55e);
+      box-shadow: 0 10px 28px rgba(48, 209, 88, 0.35);
+    }
+
+    .modal button.success:hover {
+      transform: translateY(-1px);
+    }
+
+    .modal button.ghost {
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    body.day-negative .modal button.success {
+      background: linear-gradient(135deg, #ff453a, #fb7185);
+      box-shadow: 0 10px 28px rgba(255, 69, 58, 0.35);
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    input[type="number"],
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(14px);
+
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+
+      margin: 10px 0;
+      outline: none;
+
+      transition: all 0.25s ease;
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow:
+        0 0 0 1px rgba(48, 209, 88, 0.4),
+        0 0 24px rgba(48, 209, 88, 0.25);
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.45);
+      font-weight: 600;
+    }
+
+    .range-info {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 5px;
+      text-align: center;
+    }
+
+    .card-positive {
+      border: 1px solid rgba(48, 209, 88, 0.55);
+      box-shadow:
+        0 0 0 1px rgba(48, 209, 88, 0.35),
+        0 12px 36px rgba(48, 209, 88, 0.22);
+    }
+
+    .card-negative {
+      border: 1px solid rgba(255, 69, 58, 0.55);
+      box-shadow:
+        0 0 0 1px rgba(255, 69, 58, 0.35),
+        0 12px 36px rgba(255, 69, 58, 0.22);
+    }
+
+    /* Streak Counter */
+    .streak-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .streak-count {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--warning);
+      text-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+    }
+
+    .streak-fire {
+      animation: firePulse 1.5s infinite;
+    }
+
+    @keyframes firePulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      width: 100%;
+      height: 5px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #a3e635);
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.8s ease;
+    }
+
+    /* ===== TODAY STATE VISUALS ===== */
+
+    /* Negative day */
+    .today-negative .stat-value {
+      color: #fecaca;
+    }
+
+    .today-negative .stat-label {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .today-negative .progress-container {
+      background: rgba(255, 69, 58, 0.25);
+    }
+
+    .today-negative .progress-bar {
+      background: linear-gradient(90deg, #ff453a, #fb7185);
+    }
+
+    /* Positive day */
+    .today-positive .stat-value {
+      color: #d1fae5;
+    }
+
+    .today-positive .progress-bar {
+      background: linear-gradient(90deg, #30d158, #a3e635);
+    }
+
+    /* Achievement Badges */
+    .badge-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .achievement-badge {
+      background: rgba(34, 197, 94, 0.18);
+      color: #a7f3d0;
+
+      padding: 12px 22px;
+      border-radius: 999px;
+
+      font-size: 0.95rem;
+      font-weight: 700;
+
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      border: 1px solid rgba(34, 197, 94, 0.35);
+
+      animation: none;
+    }
+
+    .achievement-badge::first-letter {
+      font-size: 1.2rem;
+    }
+
+    /* Celebration Animation */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      opacity: 0;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        font-size: 14px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      .stat-value {
+        font-size: 1.55rem;
+      }
+
+      button {
+        padding: 7px 14px;
+        font-size: 0.7rem;
+      }
+
+      table {
+        min-width: 100%;
+      }
+
+      .today-status {
+        padding: 15px;
+      }
+
+      .today-status>div:first-child {
+        flex: 1;
+      }
+
+      #todayStatusEmoji {
+        font-size: 2.5rem;
+      }
+
+      .chart-container {
+        height: 250px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Auth UI removed: handled by parent -->
+
+  <canvas id="bgParticles"></canvas>
+  <script>
+    // graph-only page, auth handled by parent
+  </script>
+  <script>
+    const canvas = document.getElementById('bgParticles');
+    const ctx = canvas.getContext('2d');
+    let w, h;
+    const particles = [];
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.2 + 0.4,
+        vx: (Math.random() - 0.5) * 0.08,
+        vy: (Math.random() - 0.5) * 0.08
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+
+  <div id="pageGlow" class="page-glow"></div>
+
+  <div class="container">
+    <!-- Today Status Banner -->
+    <div id="todayStatusBanner" class="today-status" style="display:none;">
+      <div>
+        <div style="font-weight:700; opacity:0.9; font-size: 0.9rem;">AAJ KA DIN</div>
+        <div id="todayStatusText" style="font-size:1.5rem; font-weight:800; margin-top: 4px;"></div>
+        <div id="todayStatusSubtext" style="font-size:0.9rem; opacity:0.8; margin-top: 4px;"></div>
+      </div>
+      <div id="todayStatusEmoji" style="font-size:3rem;">🔥</div>
+    </div>
+
+    <div class="header">
+      <h1>🚀 Personal Growth Graph</h1>
+      <p class="subtitle" id="motivationalQuote">Consistency is Key</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="dispCurrent">0</div>
+        <div class="stat-label">Current Value</div>
+        <div class="progress-container">
+          <div class="progress-bar" id="currentProgress"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="dispGrowth">0</div>
+        <div class="stat-label">Net Growth</div>
+        <div class="progress-container">
+          <div class="progress-bar" id="growthProgress"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="dispDays">0</div>
+        <div class="stat-label">Days Tracked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="dispAvgGrowth">0</div>
+        <div class="stat-label">Avg Daily Growth</div>
+        <div class="badge-container" id="achievementBadges"></div>
+      </div>
+    </div>
+
+    <!-- Main Chart -->
+    <div class="card">
+      <div class="chart-container">
+        <canvas id="mainChart"></canvas>
+      </div>
+      <div style="text-align: center; margin-top: 15px; color: rgba(255,255,255,0.85); font-size: 0.9rem;">
+        <span id="chartInfo">Hover over points for details</span>
+      </div>
+    </div>
+
+    <!-- Settings & Data -->
+    <div class="card">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap:10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <label style="font-weight: 600;">Starting Base:</label>
+          <input type="number" id="baseInput" value="-800"
+            style="width: 90px; padding: 6px; margin:0; font-size: 1rem;">
+          <button onclick="saveBaseSettings()" class="hud-control update">UPDATE BASE</button>
+        </div>
+        <div>
+          <button onclick="exportData()" class="hud-control export">EXPORT</button>
+          <button onclick="document.getElementById('importFile').click()" class="hud-control import">IMPORT</button>
+          <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(this)">
+          <button onclick="resetAll()" class="hud-control delete">RESET</button>
+        </div>
+      </div>
+      <!-- Solar/Earth BG Visual Layer -->
+      <div id="bgSpace" style="position:fixed;inset:0;z-index:-1;pointer-events:none;display:none;">
+        <svg width="100vw" height="100vh" style="width:100vw;height:100vh;display:block;" viewBox="0 0 1920 1080"
+          fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(1550 700)">
+            <!-- Planet base -->
+            <circle r="320" fill="url(#earthGradient)" filter="url(#earthGlow)" />
+
+            <!-- Fox face geometry (MetaMask‑style abstract) -->
+            <path d="
+          M -170 -60
+          C -120 -160, -40 -200, 0 -170
+          C 40 -200, 120 -160, 170 -60
+          L 110 150
+          C 40 95, -40 95, -110 150
+          Z
+        " fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)" stroke-width="2" />
+
+            <!-- Eyes -->
+            <ellipse cx="-75" cy="-25" rx="30" ry="18" fill="rgba(0,0,0,0.28)" />
+            <ellipse cx="75" cy="-25" rx="30" ry="18" fill="rgba(0,0,0,0.28)" />
+
+            <!-- Nose / focus point -->
+            <circle cx="0" cy="40" r="10" fill="rgba(0,0,0,0.35)" />
+
+            <!-- Slow Tony‑Stark rotation -->
+            <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="140s"
+              repeatCount="indefinite" />
+          </g>
+          <circle cx="350" cy="180" r="140" fill="url(#sunGradient)" filter="url(#sunGlow)" />
+          <ellipse cx="1550" cy="700" rx="420" ry="120" fill="rgba(100,210,255,0.09)" />
+          <ellipse cx="1550" cy="700" rx="620" ry="180" fill="rgba(48,209,88,0.07)" />
+          <ellipse cx="1550" cy="700" rx="830" ry="260" fill="rgba(255,255,255,0.04)" />
+          <defs>
+            <radialGradient id="earthGradient" cx="0" cy="0" r="1" gradientTransform="translate(1550 700) scale(320)"
+              gradientUnits="userSpaceOnUse">
+              <stop stop-color="#30d158" />
+              <stop offset="0.5" stop-color="#64d2ff" />
+              <stop offset="1" stop-color="#0b0f14" />
+            </radialGradient>
+            <filter id="earthGlow" x="1230" y="380" width="640" height="640" filterUnits="userSpaceOnUse"
+              color-interpolation-filters="sRGB">
+              <feGaussianBlur stdDeviation="22" />
+            </filter>
+            <radialGradient id="sunGradient" cx="0" cy="0" r="1" gradientTransform="translate(350 180) scale(140)"
+              gradientUnits="userSpaceOnUse">
+              <stop stop-color="#ffd60a" />
+              <stop offset="1" stop-color="#ff453a" stop-opacity="0.2" />
+            </radialGradient>
+            <filter id="sunGlow" x="210" y="40" width="280" height="280" filterUnits="userSpaceOnUse"
+              color-interpolation-filters="sRGB">
+              <feGaussianBlur stdDeviation="10" />
+            </filter>
+          </defs>
+        </svg>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Growth</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="logTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Entry Modal -->
+  <div class="modal-overlay" id="dailyModal">
+    <div class="modal">
+      <h2>Aaj ka din kaisa raha? 🤔</h2>
+      <p style="color: #6b7280; margin-bottom: 15px;">
+        Aaj ke points enter karein. <br>
+        <small style="color: var(--danger)">*Skip karne par -1 auto-penalty lagegi.*</small>
+      </p>
+      <input type="text" id="dailyInput" placeholder="-5 se +5 tak" autofocus>
+      <div class="range-info">Range: -5 to +5</div>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button onclick="submitDaily()" style="flex: 1;" class="success">Save Entry</button>
+      </div>
+      <button onclick="skipDaily()" class="ghost" style="width: 100%; margin-top: 10px; border: none;">Skip (-1
+        Point)</button>
+    </div>
+  </div>
+
+  <!-- Edit Entry Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h2>Edit Entry ✏️</h2>
+      <p id="editDateDisplay" style="color: #6b7280; font-weight: 600;"></p>
+      <input type="text" id="editInput">
+      <div class="range-info">Range: -5 to +5</div>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button onclick="saveEdit()" style="flex: 1;">Update</button>
+        <button onclick="closeEdit()" class="ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ================= Utilities (Local-date safe) =================
+    const KEYS = {
+      BASE: 'pg_base',
+      DATA: 'pg_data',
+      LAST_VISIT: 'pg_last_visit',
+      STREAK: 'pg_streak',
+      MILESTONES: 'pg_milestones'
+    };
+
+    const toYMD = (d) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    const todayYMD = () => toYMD(new Date());
+
+    const parseYMD = (s) => {
+      const [y, m, d] = s.split('-').map(Number);
+      const dt = new Date();
+      dt.setHours(0, 0, 0, 0);
+      dt.setFullYear(y, m - 1, d);
+      return dt;
+    };
+
+    const addDays = (date, days) => {
+      const d = new Date(date.getTime());
+      d.setDate(d.getDate() + days);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    };
+
+    const formatShort = (s) => {
+      const d = parseYMD(s);
+      return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+    };
+
+    const daysBetween = (date1, date2) => {
+      const diffTime = Math.abs(date2 - date1);
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    };
+
+    // ================= Input Validation Functions =================
+    function clampValue(value) {
+      return Math.max(-5, Math.min(5, value));
+    }
+
+    function parseInputValue(inputStr) {
+      if (!inputStr || inputStr === '-' || inputStr === '') {
+        return 0;
+      }
+
+      const cleaned = inputStr.replace(/[^0-9.\-]/g, '');
+      const num = parseFloat(cleaned);
+
+      if (isNaN(num)) {
+        return 0;
+      }
+
+      return clampValue(num);
+    }
+
+    function formatInputValue(value) {
+      if (value === 0) {
+        return '-';
+      }
+      return value.toString();
+    }
+
+    // ================= Celebration Functions =================
+    function createConfetti() {
+      const colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
+
+      for (let i = 0; i < 150; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.backgroundColor = color;
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.top = '-10px';
+        confetti.style.width = Math.random() * 10 + 5 + 'px';
+        confetti.style.height = Math.random() * 10 + 5 + 'px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+
+        document.body.appendChild(confetti);
+
+        const animation = confetti.animate([
+          {
+            transform: `translate(0, 0) rotate(0deg)`,
+            opacity: 1
+          },
+          {
+            transform: `translate(${Math.random() * 200 - 100}px, 100vh) rotate(${Math.random() * 720}deg)`,
+            opacity: 0
+          }
+        ], {
+          duration: Math.random() * 3000 + 2000,
+          easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
+        });
+
+        animation.onfinish = () => confetti.remove();
+      }
+    }
+
+    function playSuccessSound() {
+      // Create a pleasant success sound using Web Audio API
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+        oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+        oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } catch (e) {
+        console.log("Audio not supported");
+      }
+    }
+
+    function playNegativeSound() {
+      // Create a negative sound
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.setValueAtTime(220, audioContext.currentTime); // A3
+        oscillator.frequency.setValueAtTime(196, audioContext.currentTime + 0.1); // G3
+        oscillator.frequency.setValueAtTime(174.61, audioContext.currentTime + 0.2); // F3
+
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } catch (e) {
+        console.log("Audio not supported");
+      }
+    }
+
+    function vibrateDevice(pattern = [100, 50, 100]) {
+      if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+      }
+    }
+
+    // ================= Motivational Messages =================
+    const motivationalMessages = [
+      "Consistency is Key! 🔑",
+      "Every small step counts! 👣",
+      "Keep pushing forward! 💪",
+      "Growth is a journey, not a destination! 🚗",
+      "You're doing great! 🌟",
+      "Progress, not perfection! 📈",
+      "Stay committed to your growth! 🌱",
+      "Your future self will thank you! 🙏",
+      "Small improvements add up! 🎯",
+      "Keep the momentum going! ⚡"
+    ];
+
+    const dailyMessages = {
+      positive: [
+        "Amazing work today! 🎉",
+        "You're on fire! 🔥",
+        "Incredible progress! 🚀",
+        "Keep it up! 👍",
+        "You're unstoppable! 💥"
+      ],
+      negative: [
+        "Tomorrow is a new day! 🌅",
+        "Learn and move forward! 📚",
+        "Setback is setup for comeback! 💪",
+        "Keep going, you got this! 🙌",
+        "Progress isn't always linear! 📉➡📈"
+      ]
+    };
+
+    // ================= State =================
+    let baseValue = parseFloat(localStorage.getItem(KEYS.BASE));
+    if (isNaN(baseValue)) baseValue = -800;
+    let entries = JSON.parse(localStorage.getItem(KEYS.DATA) || '[]');
+    let streakData = JSON.parse(localStorage.getItem(KEYS.STREAK) || '{"count": 0, "lastDate": ""}');
+    let milestones = JSON.parse(localStorage.getItem(KEYS.MILESTONES) || '{"5": false, "10": false, "20": false, "50": false}');
+    let chartInstance = null;
+    let editingDate = null;
+    let bannerTimeout = null;
+
+    // ================= Today Status Banner =================
+    function updateTodayBanner() {
+      const today = todayYMD();
+      const todayEntry = entries.find(e => e.date === today);
+      const banner = document.getElementById('todayStatusBanner');
+      const statusText = document.getElementById('todayStatusText');
+      const statusSubtext = document.getElementById('todayStatusSubtext');
+      const statusEmoji = document.getElementById('todayStatusEmoji');
+
+      if (bannerTimeout) {
+        clearTimeout(bannerTimeout);
+        bannerTimeout = null;
+      }
+
+      if (!todayEntry) {
+        banner.style.display = 'none';
+        return;
+      }
+
+      banner.style.display = 'flex';
+      const val = todayEntry.val;
+
+      if (val >= 0) {
+        banner.className = 'today-status';
+        statusText.innerText = `+${val} Points Gained!`;
+        const randomMsg = dailyMessages.positive[Math.floor(Math.random() * dailyMessages.positive.length)];
+        statusSubtext.innerText = randomMsg;
+        statusEmoji.innerText = val > 1 ? '🚀' : (val === 1 ? '🔥' : '👍');
+
+        if (val >= 3) {
+          playSuccessSound();
+          createConfetti();
+        }
+      } else {
+        banner.className = 'today-status negative';
+        statusText.innerText = `${val} Points (Degrowth)`;
+        const randomMsg = dailyMessages.negative[Math.floor(Math.random() * dailyMessages.negative.length)];
+        statusSubtext.innerText = randomMsg;
+        statusEmoji.innerText = '📉';
+        playNegativeSound();
+        vibrateDevice([100, 50, 100]);
+      }
+
+      bannerTimeout = setTimeout(() => {
+        banner.style.display = 'none';
+      }, 5000);
+    }
+
+    // ================= Streak Calculation =================
+    function calculateStreak() {
+      if (!entries || entries.length === 0) {
+        streakData = { count: 0, lastDate: "" };
+        localStorage.setItem(KEYS.STREAK, JSON.stringify(streakData));
+        return;
+      }
+
+      // Sort entries by date ASC
+      entries.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
+
+      let streak = 0;
+      let prevDate = null;
+
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const entry = entries[i];
+        const entryDate = parseYMD(entry.date);
+
+        // ❌ Break streak if auto / skipped OR negative manual
+        if (entry.type !== 'manual' || entry.val < 0) {
+          break;
+        }
+
+        // First valid streak day
+        if (!prevDate) {
+          streak = 1;
+          prevDate = entryDate;
+          continue;
+        }
+
+        // Check if consecutive day
+        const diff = daysBetween(entryDate, prevDate);
+        if (diff === 1) {
+          streak++;
+          prevDate = entryDate;
+        } else {
+          break;
+        }
+      }
+
+      streakData.count = streak;
+      streakData.lastDate = streak > 0 ? toYMD(prevDate) : "";
+
+      localStorage.setItem(KEYS.STREAK, JSON.stringify(streakData));
+    }
+
+    // ================= Core =================
+    function init() {
+      // Set base input
+      document.getElementById('baseInput').value = baseValue;
+
+      // Update motivational quote
+      const randomIndex = Math.floor(Math.random() * motivationalMessages.length);
+      document.getElementById('motivationalQuote').textContent = motivationalMessages[randomIndex];
+
+      // If fresh start or after reset: immediately prompt for today's entry
+      if (!entries || entries.length === 0) {
+        entries = [];
+        render(); // show zeros/base in UI
+        setTimeout(() => {
+          openDailyModal();
+        }, 500);
+        return;
+      }
+
+      // Existing data: first apply missed-day penalties, then check today's prompt
+      processMissedDays();
+      calculateStreak();
+      checkTodayPrompt();
+      render();
+      updateTodayBanner();
+
+      // Check for milestones
+      checkMilestones();
+    }
+
+    function openDailyModal() {
+      const modal = document.getElementById('dailyModal');
+      modal.style.display = 'flex';
+
+      // Set default value with minus sign
+      const input = document.getElementById('dailyInput');
+      input.value = '-';
+
+      setTimeout(() => {
+        input.focus();
+        input.setSelectionRange(0, input.value.length);
+      }, 0);
+    }
+
+    // Apply -1 for each missed day between last entry and yesterday
+    function processMissedDays() {
+      if (!entries || entries.length === 0) return;
+
+      entries.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
+
+      const last = parseYMD(entries[entries.length - 1].date);
+      const today = parseYMD(todayYMD());
+      let curr = addDays(last, 1);
+
+      let changed = false;
+      while (curr < today) {
+        const ds = toYMD(curr);
+        if (!entries.find(e => e.date === ds)) {
+          entries.push({ date: ds, val: -1, type: 'auto' });
+          changed = true;
+        }
+        curr = addDays(curr, 1);
+      }
+
+      if (changed) saveData();
+    }
+
+    // Show daily prompt if today's entry not present
+    function checkTodayPrompt() {
+      const today = todayYMD();
+      const hasToday = entries.some(e => e.date === today);
+      if (!hasToday) {
+        setTimeout(() => {
+          openDailyModal();
+        }, 1000);
+      }
+    }
+
+    function submitDaily() {
+      const inputStr = document.getElementById('dailyInput').value;
+      const v = parseInputValue(inputStr);
+
+      const clampedValue = clampValue(v);
+
+      if (Math.abs(v) > 5) {
+        alert(`Value clamped to ${clampedValue} (range is -5 to +5)`);
+      }
+
+      addEntry(todayYMD(), clampedValue, 'manual');
+      document.getElementById('dailyModal').style.display = 'none';
+      document.getElementById('dailyInput').value = '';
+      vibrateDevice([50]);
+    }
+
+    function skipDaily() {
+      if (confirm("Are you sure? This will add -1 for today.")) {
+        addEntry(todayYMD(), -1, 'skipped');
+        document.getElementById('dailyModal').style.display = 'none';
+        document.getElementById('dailyInput').value = '';
+        vibrateDevice([100]);
+      }
+    }
+
+    // ================= Milestone Check =================
+    function checkMilestones() {
+      const current = entries.reduce((sum, entry) => sum + entry.val, baseValue);
+      const netGrowth = current - baseValue;
+
+      const milestonePoints = [5, 10, 20, 50];
+
+      milestonePoints.forEach(point => {
+        if (netGrowth >= point && !milestones[point]) {
+          milestones[point] = true;
+          localStorage.setItem(KEYS.MILESTONES, JSON.stringify(milestones));
+
+          // Celebrate milestone
+          setTimeout(() => {
+            alert(`🎉 Congratulations! You've reached +${point} net growth! 🎉`);
+            createConfetti();
+            playSuccessSound();
+          }, 1000);
+        }
+      });
+    }
+
+    // ================= Edit / CRUD =================
+    function addEntry(date, val, type) {
+      entries = entries.filter(e => e.date !== date);
+      entries.push({ date, val, type });
+      saveData();
+      calculateStreak();
+      render();
+
+      if (date === todayYMD()) {
+        setTimeout(() => {
+          updateTodayBanner();
+        }, 300);
+      }
+
+      checkMilestones();
+    }
+
+    function deleteEntry(date) {
+      if (confirm('Delete this entry?')) {
+        entries = entries.filter(e => e.date !== date);
+        saveData();
+        calculateStreak();
+        render();
+
+        if (date === todayYMD()) {
+          document.getElementById('todayStatusBanner').style.display = 'none';
+          checkTodayPrompt();
+        }
+        vibrateDevice([100, 50]);
+      }
+    }
+
+    window.openEdit = function (date) {
+      const entry = entries.find(e => e.date === date);
+      if (!entry) return;
+      editingDate = date;
+      document.getElementById('editDateDisplay').innerText = `Date: ${date}`;
+
+      document.getElementById('editInput').value = formatInputValue(entry.val);
+
+      document.getElementById('editModal').style.display = 'flex';
+      setTimeout(() => {
+        const input = document.getElementById('editInput');
+        input.focus();
+        input.setSelectionRange(0, input.value.length);
+      }, 0);
+    };
+
+    function saveEdit() {
+      const inputStr = document.getElementById('editInput').value;
+      const val = parseInputValue(inputStr);
+
+      const clampedValue = clampValue(val);
+
+      if (Math.abs(val) > 5) {
+        alert(`Value clamped to ${clampedValue} (range is -5 to +5)`);
+      }
+
+      const idx = entries.findIndex(e => e.date === editingDate);
+      if (idx > -1) {
+        entries[idx].val = clampedValue;
+        entries[idx].type = 'manual';
+        saveData();
+        calculateStreak();
+        render();
+
+        if (editingDate === todayYMD()) {
+          setTimeout(() => {
+            updateTodayBanner();
+          }, 300);
+        }
+        vibrateDevice([50]);
+      }
+      closeEdit();
+    }
+
+    function closeEdit() {
+      document.getElementById('editModal').style.display = 'none';
+      editingDate = null;
+    }
+
+    // ================= Persistence =================
+    function saveData() {
+      localStorage.setItem(KEYS.DATA, JSON.stringify(entries));
+      localStorage.setItem(KEYS.BASE, baseValue);
+      localStorage.setItem(KEYS.STREAK, JSON.stringify(streakData));
+      localStorage.setItem(KEYS.MILESTONES, JSON.stringify(milestones));
+
+      if (currentUser) {
+        saveUserData(currentUser.uid, {
+          baseValue,
+          entries,
+          streakData,
+          milestones,
+          theme: localStorage.getItem("pg_theme"),
+          updatedAt: Date.now()
+        });
+      }
+    }
+
+    function saveBaseSettings() {
+      baseValue = parseFloat(document.getElementById('baseInput').value);
+      if (isNaN(baseValue)) baseValue = 0;
+      localStorage.setItem(KEYS.BASE, baseValue);
+      vibrateDevice([50]);
+      render();
+    }
+
+    // ================= Render =================
+    function render() {
+      entries.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
+      calculateStreak();
+
+      let current = baseValue;
+      const tableData = entries.map(e => {
+        current += e.val;
+        return { ...e, total: parseFloat(current.toFixed(2)) };
+      });
+
+      // Update Stats
+      const netGrowth = current - baseValue;
+
+      // TODAY visual state (page + inner UI)
+      const pageGlow = document.getElementById('pageGlow');
+      const container = document.querySelector('.container');
+      const today = todayYMD();
+      const todayEntry = entries.find(e => e.date === today);
+
+      // Reset visual state
+      pageGlow.classList.remove('page-positive', 'page-negative');
+      container.classList.remove('today-positive', 'today-negative');
+      document.body.classList.remove('day-positive', 'day-negative');
+
+      if (todayEntry) {
+        const isPositive = todayEntry.val >= 0;
+        pageGlow.classList.add(isPositive ? 'page-positive' : 'page-negative');
+        container.classList.add(isPositive ? 'today-positive' : 'today-negative');
+        document.body.classList.add(isPositive ? 'day-positive' : 'day-negative');
+      }
+
+      const currentElem = document.getElementById('dispCurrent');
+      const growthElem = document.getElementById('dispGrowth');
+
+      currentElem.innerText = current.toFixed(2);
+      growthElem.innerHTML = (netGrowth >= 0 ? '+' : '') + netGrowth.toFixed(2);
+      growthElem.className = 'stat-value ' + (netGrowth >= 0 ? 'text-green' : 'text-red');
+
+      // Visual-only: green/red glow on chart card based on net growth
+      const chartCard = document.querySelector('.chart-container')?.closest('.card');
+      if (chartCard) {
+        chartCard.classList.remove('card-positive', 'card-negative');
+        chartCard.classList.add(netGrowth >= 0 ? 'card-positive' : 'card-negative');
+      }
+
+      document.getElementById('dispDays').innerText = entries.length;
+
+      // Calculate Average Daily Growth
+      const currentVal = tableData.length ? tableData[tableData.length - 1].total : baseValue;
+      const totalGrowth = currentVal - baseValue;
+      const days = entries.length;
+      const avgGrowth = days > 0 ? (totalGrowth / days) : 0;
+
+      const avgGrowthElem = document.getElementById('dispAvgGrowth');
+      avgGrowthElem.innerHTML = (avgGrowth >= 0 ? '+' : '') + avgGrowth.toFixed(2);
+      avgGrowthElem.className = 'stat-value ' + (avgGrowth >= 0 ? 'text-green' : 'text-red');
+
+      // Update Progress Bars
+      const currentProgress = document.getElementById('currentProgress');
+      const growthProgress = document.getElementById('growthProgress');
+
+      // Animate progress bars
+      setTimeout(() => {
+        const currentTargetWidth = Math.min(100, (current / (baseValue * 2)) * 100);
+        const growthTargetWidth = Math.min(100, Math.max(0, 50 + (netGrowth / baseValue) * 50));
+
+        currentProgress.style.width = currentTargetWidth + '%';
+        growthProgress.style.width = growthTargetWidth + '%';
+      }, 100);
+
+      // Update Streak
+      // (Removed streak fire/count from Days Tracked card)
+
+      // Update Achievement Badges
+      const badgeContainer = document.getElementById('achievementBadges');
+      badgeContainer.innerHTML = '';
+
+      if (streakData.count > 0) {
+        const streakBadge = document.createElement('div');
+        streakBadge.className = 'achievement-badge';
+        streakBadge.innerHTML = `🔥 ${streakData.count}-Day Streak`;
+        badgeContainer.appendChild(streakBadge);
+      }
+
+      // Render Table (latest first)
+      const tbody = document.getElementById('logTable');
+      tbody.innerHTML = '';
+
+      [...tableData].reverse().forEach((row, index) => {
+        const isPos = row.val >= 0;
+        const isAuto = row.type === 'auto' || row.type === 'skipped';
+
+        const tr = document.createElement('tr');
+        if (isAuto) tr.classList.add('penalty-row');
+        tr.style.animationDelay = `${index * 0.05}s`;
+
+        // Status HUD chip logic
+        let statusClass = isAuto ? 'auto' : (isPos ? 'manual' : 'negative');
+        let statusText = isAuto ? 'AUTO' : (isPos ? 'MANUAL' : 'NEG');
+        // For skipped, you could customize further if desired
+
+        tr.innerHTML = `
+        <td>${row.date}</td>
+        <td><span class="badge ${isAuto ? 'badge-auto' : (isPos ? 'badge-green' : 'badge-red')}">${isAuto ? (row.type === 'skipped' ? 'Skipped (-1)' : 'Auto (-1)') : (isPos ? `+${row.val}` : row.val)}</span></td>
+        <td style="font-weight:bold">${row.total}</td>
+        <td>
+          <span class="hud-status ${statusClass}">
+            ${statusText}
+          </span>
+        </td>
+        <td>
+          <div class="table-actions">
+            <button class="hud-btn edit" onclick="openEdit('${row.date}')">EDIT</button>
+            <button class="hud-btn delete" onclick="deleteEntry('${row.date}')">DEL</button>
+          </div>
+        </td>
+      `;
+        tbody.appendChild(tr);
+      });
+
+      renderChart(tableData);
+    }
+
+    function renderChart(data) {
+      const ctx = document.getElementById('mainChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      const labels = data.map(d => formatShort(d.date));
+      const values = data.map(d => d.total);
+
+      // 🎯 Chart mood must follow TODAY (emotional consistency)
+      const today = todayYMD();
+      const todayEntry = entries.find(e => e.date === today);
+      // If today exists → follow today
+      // If no today entry yet → fallback to net growth
+      const isNegativeChart = todayEntry
+        ? todayEntry.val < 0
+        : (values.length > 0 ? (values[values.length - 1] - baseValue) < 0 : false);
+
+      const lineColor = isNegativeChart ? '#ff453a' : '#30d158';
+      const glowColor = isNegativeChart
+        ? 'rgba(255,69,58,0.45)'
+        : 'rgba(48,209,88,0.45)';
+      const fadeColor = isNegativeChart
+        ? 'rgba(255,69,58,0.06)'
+        : 'rgba(48,209,88,0.06)';
+
+      // Apple Tahoe depth gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+      gradient.addColorStop(0, glowColor);
+      gradient.addColorStop(0.6, fadeColor);
+      gradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+      // Calculate min and max for better y-axis scaling
+      const minValue = Math.min(...values, baseValue) * 0.95;
+      const maxValue = Math.max(...values, baseValue) * 1.05;
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Growth Value',
+              data: values,
+              borderColor: lineColor,
+              backgroundColor: gradient,
+              fill: true,
+
+              // 🛑 HARD CLIP: line CANNOT draw outside chart area
+              clip: { top: 18, bottom: 18, left: 0, right: 0 },
+
+              tension: 0.4,
+              borderWidth: 3,
+              pointRadius: 4,
+              pointBackgroundColor: '#ffffff',
+              pointBorderColor: lineColor,
+              pointBorderWidth: 2,
+              pointHoverRadius: 6,
+              pointHoverBackgroundColor: '#ffffff',
+              pointHoverBorderColor: lineColor,
+              pointHoverBorderWidth: 3
+            },
+            {
+              label: 'Starting Base',
+              data: Array(values.length).fill(baseValue),
+              borderColor: '#6b7280',
+              borderWidth: 1,
+              borderDash: [5, 5],
+              fill: false,
+              pointRadius: 0,
+              tension: 0,
+              clip: { top: 18, bottom: 18, left: 0, right: 0 },
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: {
+              top: 18,
+              bottom: 18
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              titleColor: '#111827',
+              bodyColor: '#374151',
+              borderColor: lineColor,
+              borderWidth: 1,
+              cornerRadius: 8,
+              padding: 12,
+              callbacks: {
+                label: function (context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    label += context.parsed.y.toFixed(2);
+                  }
+                  return label;
+                },
+                afterLabel: function (context) {
+                  if (context.datasetIndex === 0 && data[context.dataIndex]) {
+                    const entry = data[context.dataIndex];
+                    const dailyChange = entry.val;
+                    return `Daily: ${dailyChange >= 0 ? '+' : ''}${dailyChange}`;
+                  }
+                  return '';
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              // 🧠 ADD breathing space so line never touches edges
+              grace: '35%',
+              offset: true,
+              grid: {
+                color: 'rgba(255,255,255,0.06)', // 4️⃣ Apple Tahoe calm
+                drawBorder: false
+              },
+              ticks: {
+                color: '#6b7280',
+                font: {
+                  size: 12
+                },
+                callback: function (value) {
+                  return value.toFixed(1);
+                }
+              },
+              min: minValue,
+              max: maxValue
+            },
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                color: 'rgba(255,255,255,0.45)', // 4️⃣ Apple Tahoe calm
+                font: {
+                  size: 11
+                },
+                maxRotation: 45
+              }
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          elements: {
+            line: {
+              tension: 0.4
+            }
+          },
+          animation: {
+            duration: 1000,
+            easing: 'easeOutQuart'
+          }
+        }
+      });
+
+      // Update chart info
+      const chartInfo = document.getElementById('chartInfo');
+      if (data.length > 0) {
+        const firstDate = formatShort(data[0].date);
+        const lastDate = formatShort(data[data.length - 1].date);
+        chartInfo.textContent = `Tracking from ${firstDate} to ${lastDate} • ${data.length} days • Streak: ${streakData.count}`;
+      } else {
+        chartInfo.textContent = 'No data yet. Add your first entry!';
+      }
+    }
+
+    // ================= Import/Export/Reset =================
+    function exportData() {
+      const dataStr = JSON.stringify({
+        base: baseValue,
+        entries,
+        streak: streakData,
+        milestones: milestones
+      });
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `growth_data_${todayYMD()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      playSuccessSound();
+    }
+
+    function importData(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const d = JSON.parse(e.target.result);
+          entries = Array.isArray(d.entries) ? d.entries : [];
+          baseValue = typeof d.base === 'number' ? d.base : 16;
+          streakData = d.streak || { count: 0, lastDate: "" };
+          milestones = d.milestones || { "5": false, "10": false, "20": false, "50": false };
+
+          localStorage.setItem(KEYS.BASE, baseValue);
+          localStorage.setItem(KEYS.STREAK, JSON.stringify(streakData));
+          localStorage.setItem(KEYS.MILESTONES, JSON.stringify(milestones));
+
+          saveData();
+          init();
+          updateTodayBanner();
+
+          // 🎉 Celebrate ONLY if today is positive
+          const today = todayYMD();
+          const todayEntry = entries.find(e => e.date === today);
+          if (todayEntry && todayEntry.val >= 0) {
+            createConfetti();
+            playSuccessSound();
+          }
+        } catch (err) {
+          alert('Invalid JSON file');
+          playNegativeSound();
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAll() {
+      if (confirm('Warning: This will delete ALL data permanently!')) {
+        localStorage.clear();
+        playNegativeSound();
+        location.reload();
+      }
+    }
+
+    // ================= Event Listeners =================
+    document.getElementById('dailyInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitDaily();
+    });
+
+    document.getElementById('editInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') saveEdit();
+    });
+
+    // Real-time validation for daily input
+    document.getElementById('dailyInput').addEventListener('input', function (e) {
+      this.value = this.value.replace(/[^0-9.\-]/g, '');
+
+      if (this.value.includes('-')) {
+        const parts = this.value.split('-');
+        if (parts.length > 2) {
+          this.value = '-' + parts.slice(1).join('');
+        }
+        if (this.value.indexOf('-') > 0) {
+          this.value = this.value.replace('-', '');
+        }
+      }
+    });
+
+    // Real-time validation for edit input
+    document.getElementById('editInput').addEventListener('input', function (e) {
+      this.value = this.value.replace(/[^0-9.\-]/g, '');
+
+      if (this.value.includes('-')) {
+        const parts = this.value.split('-');
+        if (parts.length > 2) {
+          this.value = '-' + parts.slice(1).join('');
+        }
+        if (this.value.indexOf('-') > 0) {
+          this.value = this.value.replace('-', '');
+        }
+      }
+    });
+
+    // Add button click effect
+    document.addEventListener('click', function (e) {
+      if (e.target.tagName === 'BUTTON') {
+        vibrateDevice([30]);
+      }
+    });
+
+    // ================= Mouse Particle HUD (emotion aware) =================
+    // Subtle mouse particles that react to day mood (green/red)
+    (function () {
+      const canvas = document.createElement('canvas');
+      canvas.style.position = 'fixed';
+      canvas.style.left = '0';
+      canvas.style.top = '0';
+      canvas.style.width = '100vw';
+      canvas.style.height = '100vh';
+      canvas.style.pointerEvents = 'none';
+      canvas.style.zIndex = '-1';
+      canvas.style.transition = 'opacity 0.3s';
+      // --- SCROLL/PASSTHROUGH PATCH ---
+      canvas.style.touchAction = 'none';
+      // --- END PATCH ---
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      document.body.appendChild(canvas);
+      let particles = [];
+      let mouse = { x: 0, y: 0 };
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      document.addEventListener('mousemove', function (e) {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        // Add a few new particles at mouse
+        for (let i = 0; i < 3; i++) {
+          particles.push({
+            x: mouse.x + (Math.random() - 0.5) * 2,
+            y: mouse.y + (Math.random() - 0.5) * 2,
+            vx: (Math.random() - 0.5) * 1.2,
+            vy: (Math.random() - 0.5) * 1.2 - 0.2,
+            life: 1
+          });
+        }
+      });
+      function draw() {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Subtle: only up to 60 particles
+        particles = particles.filter(p => p.life > 0.02);
+        for (let p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life *= 0.93;
+          // Particle color: react to day mood
+          const isNegativeDay = document.body.classList.contains('day-negative');
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 4.5 * p.life, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.fillStyle = isNegativeDay
+            ? `rgba(255,69,58,${p.life * 0.55})`
+            : `rgba(48,209,88,${p.life * 0.55})`;
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // ================= BACKGROUND PARTICLE FIELD =================
+    // Small particles everywhere + mouse influence + day mood
+    (function () {
+      const canvas = document.getElementById('bgParticles');
+      const ctx = canvas.getContext('2d');
+
+      let w, h;
+      const particles = [];
+      const COUNT = 320; // more visible, still safe
+
+      const mouse = { x: -9999, y: -9999 };
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Init particles
+      for (let i = 0; i < COUNT; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+
+          vx: (Math.random() - 0.5) * 0.06,
+          vy: (Math.random() - 0.5) * 0.06,
+
+          ax: 0,
+          ay: 0,
+
+          r: Math.random() * 1.6 + 0.9
+        });
+      }
+
+      window.addEventListener('mousemove', e => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      });
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+
+        const isNegativeDay = document.body.classList.contains('day-negative');
+        const color = isNegativeDay
+          ? '255,69,58'   // red
+          : '48,209,88';  // green (Apple green)
+
+        for (let p of particles) {
+          // mouse influence (fluid inertia)
+          const dx = p.x - mouse.x;
+          const dy = p.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 140) {
+            const force = (140 - dist) / 140;
+
+            // gentle push near mouse (no explosion)
+            p.ax += (dx / dist) * force * 0.018;
+            p.ay += (dy / dist) * force * 0.018;
+          }
+
+          // apply acceleration
+          p.vx += p.ax;
+          p.vy += p.ay;
+
+          // friction (smooth inertia)
+          p.vx *= 0.975;
+          p.vy *= 0.975;
+
+          // move
+          p.x += p.vx;
+          p.y += p.vy;
+
+          // reset acceleration
+          p.ax = 0;
+          p.ay = 0;
+
+          // wrap
+          if (p.x < 0) p.x = w;
+          if (p.x > w) p.x = 0;
+          if (p.y < 0) p.y = h;
+          if (p.y > h) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${color},0.55)`;
+          ctx.fill();
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      draw();
+    })();
+
+    // ================= Start =================
+    init();
+
+    // Auto-refresh every minute to check for new day
+    setInterval(() => {
+      const today = todayYMD();
+      const hasToday = entries.some(e => e.date === today);
+      if (!hasToday) {
+        checkTodayPrompt();
+      }
+    }, 60000); // Check every minute
+  </script>
+</body>
+
+</html>
+    window.addEventListener("DOMContentLoaded", () => {
+      const loginBtn = document.getElementById("loginBtn");
+      const signupBtn = document.getElementById("signupBtn");
+
+      loginBtn.addEventListener("click", () => {
+        login(
+          document.getElementById("email").value,
+          document.getElementById("password").value
+        );
+      });
+
+      signupBtn.addEventListener("click", () => {
+        signup(
+          document.getElementById("email").value,
+          document.getElementById("password").value
+        );
+      });
+    });
+    // --- Signup/Login view switching logic ---
+    const loginView = document.getElementById("loginView");
+    const signupView = document.getElementById("signupView");
+
+    document.getElementById("signupBtn").addEventListener("click", () => {
+      loginView.style.display = "none";
+      signupView.style.display = "block";
+    });
+
+    document.getElementById("backToLoginBtn").addEventListener("click", () => {
+      signupView.style.display = "none";
+      loginView.style.display = "block";
+    });
+
+    document.getElementById("createAccountBtn").addEventListener("click", async () => {
+      await signup(
+        document.getElementById("signupEmail").value,
+        document.getElementById("signupPassword").value
+      );
+    });
