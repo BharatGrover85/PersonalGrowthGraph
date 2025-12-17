@@ -1,0 +1,3235 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Growth Graph 🔥</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    /* ================= COMMON VARIABLES ================= */
+    :root {
+      /* Light Theme Variables */
+      --light-success: #10b981;
+      --light-danger: #ef4444;
+      --light-warning: #f59e0b;
+      --light-primary: #6366f1;
+      --light-secondary: #8b5cf6;
+      --light-bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --light-bg-color: #ffffff;
+      --light-text-color: #1f2937;
+      --light-card-bg: rgba(255, 255, 255, 0.96);
+      --light-border-color: #e5e7eb;
+      --light-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      
+      /* Dark Theme Variables */
+      --dark-success: #30d158;
+      --dark-danger: #ff453a;
+      --dark-warning: #ffd60a;
+      --dark-primary: #30d158;
+      --dark-secondary: #64d2ff;
+      --dark-bg-gradient: linear-gradient(180deg, #0b0f14 0%, #111827 100%);
+      --dark-bg-color: #070a10;
+      --dark-text-color: #e5e7eb;
+      --dark-card-bg: rgba(255, 255, 255, 0.06);
+      --dark-border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      transition: all 0.5s ease;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ================= LIGHT THEME STYLES ================= */
+    body.theme-light {
+      background: var(--light-bg-gradient);
+      color: var(--light-text-color);
+    }
+
+    /* Light Mode Header - WHITE BACKGROUND */
+    body.theme-light .header-container {
+      background: white;
+      color: #1f2937;
+      padding: 24px;
+      border-radius: 20px;
+      margin-bottom: 32px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--light-border-color);
+    }
+
+    body.theme-light .header {
+      color: #1f2937;
+    }
+
+    body.theme-light .card {
+      background: var(--light-card-bg);
+      border: 1px solid var(--light-border-color);
+      box-shadow: var(--light-shadow);
+    }
+
+    body.theme-light .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    body.theme-light .stat-card {
+      background: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    body.theme-light .stat-card:hover {
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    body.theme-light .table-responsive {
+      border: 1px solid var(--light-border-color);
+    }
+
+    body.theme-light th {
+      background: white;
+      border-bottom: 2px solid var(--light-border-color);
+      color: #6b7280;
+    }
+
+    body.theme-light td {
+      border-bottom: 1px solid #f3f4f6;
+      color: #374151;
+    }
+
+    body.theme-light tr:hover td {
+      background-color: #f9fafb;
+    }
+
+    body.theme-light input[type="number"],
+    body.theme-light input[type="text"],
+    body.theme-light input[type="date"] {
+      background: white;
+      border: 2px solid var(--light-border-color);
+      color: var(--light-text-color);
+    }
+
+    body.theme-light input::placeholder {
+      color: #9ca3af;
+      opacity: 1;
+    }
+
+    body.theme-light .modal {
+      background: white;
+    }
+
+    body.theme-light .modal p {
+      color: #6b7280;
+    }
+
+    /* ================= DARK THEME STYLES ================= */
+    body.theme-dark {
+      background: var(--dark-bg-gradient);
+      color: var(--dark-text-color);
+    }
+
+    body.theme-dark .header-container {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    body.theme-dark .card {
+      background: var(--dark-card-bg);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      border: 1px solid var(--dark-border-color);
+    }
+
+    body.theme-dark .stat-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    body.theme-dark .table-responsive {
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(16px);
+    }
+
+    body.theme-dark th {
+      background: rgba(17, 24, 39, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    body.theme-dark td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    body.theme-dark tr:hover td {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    body.theme-dark input[type="number"],
+    body.theme-dark input[type="text"],
+    body.theme-dark input[type="date"] {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+    }
+
+    body.theme-dark input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+      opacity: 1;
+    }
+
+    body.theme-dark .modal {
+      background: rgba(15, 18, 24, 0.88);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    body.theme-dark .modal p {
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    /* ================= COMMON COMPONENTS ================= */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      min-height: 100vh;
+    }
+
+    .header-container {
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 32px;
+      transition: all 0.3s ease;
+    }
+
+    .header {
+      text-align: center;
+      color: inherit;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .subtitle {
+      opacity: 0.9;
+      margin-top: 8px;
+    }
+
+    /* Today Status Banner - FIXED */
+    .today-status {
+      color: white;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      animation: fadeIn 0.4s ease;
+      position: relative;
+    }
+
+    .today-status.hidden {
+      display: none !important;
+    }
+
+    .close-banner {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      transition: background 0.3s;
+    }
+
+    .close-banner:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    body.theme-light .today-status {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    body.theme-dark .today-status {
+      background: linear-gradient(135deg, #30d158, #22c55e);
+      box-shadow: 0 8px 20px rgba(48, 209, 88, 0.3);
+    }
+
+    .today-status.negative {
+      background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3) !important;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      border-radius: 16px;
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-value {
+      font-size: 2.05rem;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      transition: all 0.3s ease;
+    }
+
+    body.theme-light .stat-value {
+      color: #111827;
+    }
+
+    body.theme-dark .stat-value {
+      color: #ffffff;
+    }
+
+    .stat-label {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    body.theme-light .stat-label {
+      color: #6b7280;
+    }
+
+    body.theme-dark .stat-label {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 5px;
+      border-radius: 999px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    body.theme-light .progress-container {
+      background: #e5e7eb;
+    }
+
+    body.theme-dark .progress-container {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.8s ease;
+    }
+
+    body.theme-light .progress-bar {
+      background: linear-gradient(90deg, var(--light-primary), var(--light-secondary));
+    }
+
+    body.theme-dark .progress-bar {
+      background: linear-gradient(90deg, var(--dark-primary), var(--dark-secondary));
+    }
+
+    .text-green {
+      color: var(--light-success);
+    }
+
+    body.theme-dark .text-green {
+      color: var(--dark-success);
+    }
+
+    .text-red {
+      color: var(--light-danger);
+    }
+
+    body.theme-dark .text-red {
+      color: var(--dark-danger);
+    }
+
+    .text-orange {
+      color: var(--light-warning);
+    }
+
+    body.theme-dark .text-orange {
+      color: var(--dark-warning);
+    }
+
+    /* Chart Container */
+    .chart-container {
+      position: relative;
+      height: 320px;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* Goal Timeline Bar (Integrated under x-axis) */
+    .goal-timeline-container {
+      height: 30px;
+      margin-top: 5px;
+      position: relative;
+      width: 100%;
+    }
+
+    .goal-timeline-bar {
+      height: 8px;
+      background: rgba(0, 0, 0, 0.08);
+      border-radius: 4px;
+      position: relative;
+      overflow: visible;
+      margin: 0 10px;
+    }
+
+    body.theme-dark .goal-timeline-bar {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .goal-marker {
+      position: absolute;
+      top: -5px;
+      width: 3px;
+      height: 18px;
+      border-radius: 1.5px;
+      z-index: 5;
+      cursor: pointer;
+      transform: translateX(-50%);
+    }
+
+    .goal-marker:hover {
+      height: 22px;
+      top: -7px;
+    }
+
+    body.theme-light .goal-marker {
+      background: linear-gradient(180deg, #f59e0b, #d97706);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+    }
+
+    body.theme-dark .goal-marker {
+      background: linear-gradient(180deg, #ffd60a, #f59e0b);
+      box-shadow: 0 0 8px rgba(255, 214, 10, 0.6);
+    }
+
+    .goal-marker.reached {
+      background: linear-gradient(180deg, #10b981, #059669) !important;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6) !important;
+    }
+
+    body.theme-dark .goal-marker.reached {
+      background: linear-gradient(180deg, #30d158, #22c55e) !important;
+      box-shadow: 0 0 8px rgba(48, 209, 88, 0.6) !important;
+    }
+
+    .goal-marker.urgent {
+      background: linear-gradient(180deg, #ef4444, #dc2626) !important;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.6) !important;
+      animation: pulse 2s infinite;
+    }
+
+    body.theme-dark .goal-marker.urgent {
+      background: linear-gradient(180deg, #ff453a, #dc2626) !important;
+      box-shadow: 0 0 8px rgba(255, 69, 58, 0.6) !important;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+
+    .goal-label {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      font-weight: 600;
+      white-space: nowrap;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: none;
+      z-index: 10;
+    }
+
+    body.theme-dark .goal-label {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+    }
+
+    .goal-marker:hover .goal-label {
+      display: block;
+    }
+
+    /* Deadline Warning */
+    .deadline-warning {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      display: none;
+      animation: shake 0.5s ease-in-out infinite;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(-50%) rotate(0deg); }
+      25% { transform: translateX(-50%) rotate(-2deg); }
+      75% { transform: translateX(-50%) rotate(2deg); }
+    }
+
+    .goal-marker.urgent .deadline-warning {
+      display: block;
+    }
+
+    /* Buttons - FIXED */
+    button {
+      cursor: pointer;
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      border: none;
+      outline: none;
+    }
+
+    button:focus {
+      outline: 2px solid var(--light-primary);
+      outline-offset: 2px;
+    }
+
+    body.theme-dark button:focus {
+      outline-color: var(--dark-primary);
+    }
+
+    body.theme-light button {
+      background: var(--light-primary);
+      color: white;
+      border: none;
+    }
+
+    body.theme-light button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    body.theme-light button:active {
+      transform: scale(0.98);
+    }
+
+    body.theme-dark button {
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(14px);
+    }
+
+    body.theme-dark button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        120deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.35),
+        transparent 70%
+      );
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+
+    body.theme-dark button:hover::before {
+      opacity: 1;
+      transform: translateX(100%);
+      transition: transform 0.6s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: scale(0.96);
+    }
+
+    button.small {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+
+    button.success {
+      background: var(--light-success) !important;
+    }
+
+    body.theme-dark button.success {
+      background: linear-gradient(135deg, #30d158, #22c55e) !important;
+      border: none !important;
+    }
+
+    button.warn {
+      background: var(--light-danger) !important;
+    }
+
+    body.theme-dark button.warn {
+      background: var(--dark-danger) !important;
+      border: none !important;
+    }
+
+    /* Ghost Buttons - FIXED */
+    button.ghost {
+      background: transparent !important;
+      border: 1px solid !important;
+    }
+
+    body.theme-light button.ghost {
+      color: var(--light-primary);
+      border-color: var(--light-primary) !important;
+    }
+
+    body.theme-dark button.ghost {
+      color: var(--dark-primary);
+      border-color: var(--dark-primary) !important;
+    }
+
+    /* Table */
+    .table-responsive {
+      overflow-x: auto;
+      max-height: 420px;
+      border-radius: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    th {
+      text-align: left;
+      padding: 14px;
+      font-size: 0.7rem;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    td {
+      padding: 14px;
+      font-size: 0.9rem;
+    }
+
+    /* Penalty Row Styling - FIXED */
+    tr.penalty-row {
+      opacity: 0.8;
+    }
+
+    body.theme-light tr.penalty-row {
+      background-color: #fef2f2;
+    }
+
+    body.theme-dark tr.penalty-row {
+      background: rgba(255, 69, 58, 0.10);
+    }
+
+    .badge {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .badge-green {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+
+    .badge-red {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+
+    .badge-auto {
+      background: linear-gradient(135deg, #ffedd5, #fed7aa);
+      color: #9a3412;
+      border: 1px solid #fdba74;
+    }
+
+    .badge-orange {
+      background: linear-gradient(135deg, #ffedd5, #fed7aa);
+      color: #9a3412;
+      border: 1px solid #f59e0b;
+    }
+
+    /* Status HUD */
+    .hud-status {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(10px);
+    }
+
+    body.theme-light .hud-status.manual {
+      color: #065f46;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border: 1px solid #10b981;
+    }
+
+    body.theme-dark .hud-status.manual {
+      color: #a7f3d0;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    body.theme-light .hud-status.auto {
+      color: #9a3412;
+      background: linear-gradient(135deg, #ffedd5, #fed7aa);
+      border: 1px solid #fdba74;
+    }
+
+    body.theme-dark .hud-status.auto {
+      color: #fde68a;
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+    }
+
+    body.theme-light .hud-status.negative {
+      color: #991b1b;
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      border: 1px solid #ef4444;
+    }
+
+    body.theme-dark .hud-status.negative {
+      color: #fecaca;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal {
+      padding: 28px 26px;
+      border-radius: 26px;
+      width: 92%;
+      max-width: 420px;
+      animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    input[type="number"],
+    input[type="text"],
+    input[type="date"] {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      margin: 10px 0;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    input[type="date"]:focus {
+      border-color: var(--light-primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    body.theme-dark input[type="number"]:focus,
+    body.theme-dark input[type="text"]:focus,
+    body.theme-dark input[type="date"]:focus {
+      border-color: var(--dark-primary);
+      box-shadow: 0 0 0 3px rgba(48, 209, 88, 0.2);
+    }
+
+    .range-info {
+      font-size: 0.8rem;
+      margin-top: 5px;
+      text-align: center;
+    }
+
+    body.theme-light .range-info {
+      color: #6b7280;
+    }
+
+    body.theme-dark .range-info {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Theme Switcher Button */
+    .theme-switcher {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+      border: none;
+      outline: none;
+    }
+
+    body.theme-light .theme-switcher {
+      background: var(--light-primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    body.theme-dark .theme-switcher {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--dark-primary);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 20px rgba(48, 209, 88, 0.3);
+    }
+
+    .theme-switcher:hover {
+      transform: scale(1.1) rotate(15deg);
+    }
+
+    /* Achievement Badges */
+    .badge-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .achievement-badge {
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    body.theme-light .achievement-badge {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #78350f;
+    }
+
+    body.theme-dark .achievement-badge {
+      background: rgba(34, 197, 94, 0.18);
+      color: #a7f3d0;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+
+    /* Celebration Animation */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      opacity: 0;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    /* Dark Theme Background Elements - Particles Adjusted for Light Mode */
+    #bgParticles,
+    #bgSpace {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      display: none;
+    }
+
+    body.theme-dark #bgParticles,
+    body.theme-dark #bgSpace {
+      display: block;
+    }
+
+    /* Light Mode Particles - Reduced but not gone */
+    body.theme-light #bgParticles {
+      display: block;
+      opacity: 0.3;
+    }
+
+    body.theme-light #bgSpace {
+      display: none !important;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      display: none;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid var(--dark-primary);
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 600px) {
+      .container {
+        padding: 16px 12px;
+      }
+      
+      .header-container {
+        padding: 18px;
+      }
+      
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      table {
+        min-width: 100%;
+      }
+      
+      .today-status {
+        padding: 15px;
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      #todayStatusEmoji {
+        font-size: 2.5rem;
+        margin-top: 10px;
+      }
+      
+      .chart-container {
+        height: 280px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      
+      .theme-switcher {
+        bottom: 10px;
+        left: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+      
+      .stat-card {
+        padding: 15px 12px;
+      }
+      
+      .stat-value {
+        font-size: 1.8rem;
+      }
+      
+      .card {
+        padding: 18px;
+      }
+      
+      .modal {
+        padding: 20px;
+        margin: 16px;
+      }
+      
+      input[type="number"],
+      input[type="text"],
+      input[type="date"] {
+        font-size: 1.1rem;
+        padding: 12px 14px;
+      }
+      
+      .goal-timeline-container {
+        height: 25px;
+      }
+      
+      .goal-marker {
+        height: 15px;
+      }
+      
+      .goal-marker:hover {
+        height: 18px;
+      }
+      
+      .deadline-warning {
+        font-size: 0.65rem;
+        padding: 3px 8px;
+        top: -35px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Fix for input number spinners */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    /* Ensure consistent button styling */
+    button, button.small, button.success, button.warn, button.ghost {
+      font-family: inherit;
+      font-size: inherit;
+      cursor: pointer;
+    }
+
+    /* Fix for iOS scrolling */
+    .table-responsive {
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      z-index: 2000;
+      display: none;
+      animation: slideIn 0.3s ease;
+      max-width: 300px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .notification.success {
+      background: linear-gradient(135deg, #30d158, #22c55e);
+    }
+
+    .notification.error {
+      background: linear-gradient(135deg, #ff453a, #dc2626);
+    }
+
+    .notification.info {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    }
+
+    .notification.warning {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    /* Goal Progress in Stats Card */
+    .goal-progress {
+      margin-top: 10px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .goal-progress-text {
+      font-size: 0.75rem;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    body.theme-light .goal-progress-text {
+      color: #6b7280;
+    }
+
+    body.theme-dark .goal-progress-text {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .goal-progress-bar {
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    body.theme-dark .goal-progress-bar {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .goal-progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.8s ease;
+    }
+
+    body.theme-light .goal-progress-fill {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+
+    body.theme-dark .goal-progress-fill {
+      background: linear-gradient(90deg, #ffd60a, #f59e0b);
+    }
+
+    .goal-progress-fill.reached {
+      background: linear-gradient(90deg, #10b981, #059669) !important;
+    }
+
+    body.theme-dark .goal-progress-fill.reached {
+      background: linear-gradient(90deg, #30d158, #22c55e) !important;
+    }
+
+    .goal-progress-fill.urgent {
+      background: linear-gradient(90deg, #ef4444, #dc2626) !important;
+      animation: pulse 2s infinite;
+    }
+
+    body.theme-dark .goal-progress-fill.urgent {
+      background: linear-gradient(90deg, #ff453a, #dc2626) !important;
+    }
+
+    /* Deadline Badge */
+    .deadline-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 999px;
+      min-width: 20px;
+      text-align: center;
+      animation: pulse 1.5s infinite;
+    }
+
+    body.theme-dark .deadline-badge {
+      background: linear-gradient(135deg, #ff453a, #dc2626);
+    }
+  </style>
+</head>
+
+<body class="theme-dark">
+
+  <!-- Background Particles - Adjusted for Both Themes -->
+  <canvas id="bgParticles" aria-hidden="true"></canvas>
+  <div id="bgSpace" aria-hidden="true">
+    <svg width="100vw" height="100vh" style="width:100vw;height:100vh;display:block;" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(1550 700)">
+        <circle r="320" fill="url(#earthGradient)" filter="url(#earthGlow)"/>
+        <path d="
+          M -170 -60
+          C -120 -160, -40 -200, 0 -170
+          C 40 -200, 120 -160, 170 -60
+          L 110 150
+          C 40 95, -40 95, -110 150
+          Z
+        "
+        fill="rgba(255,255,255,0.06)"
+        stroke="rgba(255,255,255,0.12)"
+        stroke-width="2"/>
+        <ellipse cx="-75" cy="-25" rx="30" ry="18" fill="rgba(0,0,0,0.28)"/>
+        <ellipse cx="75" cy="-25" rx="30" ry="18" fill="rgba(0,0,0,0.28)"/>
+        <circle cx="0" cy="40" r="10" fill="rgba(0,0,0,0.35)"/>
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          from="0 0 0"
+          to="360 0 0"
+          dur="140s"
+          repeatCount="indefinite"/>
+      </g>
+      <!-- Reduced Sun Brightness -->
+      <circle cx="350" cy="180" r="140" fill="url(#sunGradient)" filter="url(#sunGlow)" opacity="0.7"/>
+      <ellipse cx="1550" cy="700" rx="420" ry="120" fill="rgba(100,210,255,0.09)"/>
+      <ellipse cx="1550" cy="700" rx="620" ry="180" fill="rgba(48,209,88,0.07)"/>
+      <ellipse cx="1550" cy="700" rx="830" ry="260" fill="rgba(255,255,255,0.04)"/>
+      <defs>
+        <radialGradient id="earthGradient" cx="0" cy="0" r="1" gradientTransform="translate(1550 700) scale(320)" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#30d158"/>
+          <stop offset="0.5" stop-color="#64d2ff"/>
+          <stop offset="1" stop-color="#0b0f14"/>
+        </radialGradient>
+        <filter id="earthGlow" x="1230" y="380" width="640" height="640" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feGaussianBlur stdDeviation="22"/>
+        </filter>
+        <!-- Reduced Sun Glow -->
+        <radialGradient id="sunGradient" cx="0" cy="0" r="1" gradientTransform="translate(350 180) scale(140)" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#ffd60a"/>
+          <stop offset="1" stop-color="#ff453a" stop-opacity="0.1"/>
+        </radialGradient>
+        <filter id="sunGlow" x="210" y="40" width="280" height="280" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feGaussianBlur stdDeviation="5"/>
+        </filter>
+      </defs>
+    </svg>
+  </div>
+
+  <!-- Notification -->
+  <div class="notification" id="notification"></div>
+
+  <!-- Theme Switcher -->
+  <button class="theme-switcher" id="themeSwitcher" aria-label="Switch theme">
+    🌙
+  </button>
+
+  <div class="container">
+    <!-- Today Status Banner - FIXED AUTO-HIDE -->
+    <div id="todayStatusBanner" class="today-status hidden" role="alert" aria-live="polite">
+      <div>
+        <div style="font-weight:700; opacity:0.9; font-size: 0.9rem;">AAJ KA DIN</div>
+        <div id="todayStatusText" style="font-size:1.5rem; font-weight:800; margin-top: 4px;"></div>
+        <div id="todayStatusSubtext" style="font-size:0.9rem; opacity:0.8; margin-top: 4px;"></div>
+      </div>
+      <div id="todayStatusEmoji" style="font-size:3rem;">🔥</div>
+      <button class="close-banner" onclick="closeTodayBanner()" aria-label="Close banner">×</button>
+    </div>
+
+    <!-- Header with White Background in Light Mode -->
+    <div class="header-container">
+      <div class="header">
+        <h1>🚀 Personal Growth Graph</h1>
+        <p class="subtitle" id="motivationalQuote">Consistency is Key</p>
+        <!-- Deadline Warning (if any) -->
+        <div id="headerDeadlineWarning" style="display:none; margin-top:10px;">
+          <span class="badge badge-red" id="deadlineWarningBadge"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="dispCurrent">0</div>
+        <div class="stat-label">Current Value</div>
+        <div class="progress-container">
+          <div class="progress-bar" id="currentProgress"></div>
+        </div>
+        <!-- Goal Progress Bar (Mini version) -->
+        <div class="goal-progress" id="goalProgressContainer" style="display:none;">
+          <div class="goal-progress-text" id="goalProgressText"></div>
+          <div class="goal-progress-bar">
+            <div class="goal-progress-fill" id="goalProgressFill"></div>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="dispGrowth">0</div>
+        <div class="stat-label">Net Growth</div>
+        <div class="progress-container">
+          <div class="progress-bar" id="growthProgress"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="dispDays">0</div>
+        <div class="stat-label">Days Tracked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="dispAvgGrowth">0</div>
+        <div class="stat-label">Avg Daily Growth</div>
+        <div class="badge-container" id="achievementBadges"></div>
+      </div>
+    </div>
+
+    <!-- Main Chart with Integrated Goal Timeline -->
+    <div class="card">
+      <div class="chart-container">
+        <canvas id="mainChart" aria-label="Personal growth chart showing progress over time"></canvas>
+      </div>
+      <!-- Goal Timeline Bar (Integrated under x-axis) -->
+      <div class="goal-timeline-container" id="goalTimelineContainer" style="display:none;">
+        <div class="goal-timeline-bar" id="goalTimelineBar">
+          <!-- Goal markers will be dynamically inserted here -->
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 15px; font-size: 0.9rem;">
+        <span id="chartInfo">Hover over points for details</span>
+      </div>
+      <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
+        <button onclick="exportChartImage()" class="small">Export Chart as Image</button>
+        <button onclick="exportDataCSV()" class="small">Export as CSV</button>
+      </div>
+    </div>
+
+    <!-- Settings & Data -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap:10px;">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <label for="baseInput" style="font-weight: 600;">Starting Base:</label>
+          <input type="number" id="baseInput" value="0" style="width: 90px; padding: 6px; margin:0; font-size: 1rem;">
+          <button onclick="saveBaseSettings()" class="small">Update Base</button>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button onclick="openGoalModal()" class="small success">Set Goal</button>
+          <button onclick="exportData()" class="small">Export JSON</button>
+          <button onclick="document.getElementById('importFile').click()" class="small">Import</button>
+          <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(this)">
+          <button onclick="resetAll()" class="small warn">Reset</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Growth</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="logTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Entry Modal -->
+  <div class="modal-overlay" id="dailyModal" role="dialog" aria-modal="true" aria-labelledby="dailyModalTitle" style="display: none;">
+    <div class="modal">
+      <h2 id="dailyModalTitle">Aaj ka din kaisa raha? 🤔</h2>
+      <p style="margin-bottom: 15px;">
+        Aaj ke points enter karein. <br>
+        <small style="color: var(--light-danger)">*Skip karne par -1 auto-penalty lagegi.*</small>
+      </p>
+      <input type="text" id="dailyInput" placeholder="-5 se +5 tak" autofocus aria-label="Enter today's points">
+      <div class="range-info">Range: -5 to +5</div>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button onclick="submitDaily()" style="flex: 1;" class="success">Save Entry</button>
+      </div>
+      <button onclick="skipDaily()" class="ghost" style="width: 100%; margin-top: 10px;">Skip (-1 Point)</button>
+    </div>
+  </div>
+
+  <!-- Edit Entry Modal -->
+  <div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle" style="display: none;">
+    <div class="modal">
+      <h2 id="editModalTitle">Edit Entry ✏️</h2>
+      <p id="editDateDisplay" style="font-weight: 600;"></p>
+      <input type="text" id="editInput" aria-label="Edit points">
+      <div class="range-info">Range: -5 to +5</div>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button onclick="saveEdit()" style="flex: 1;">Update</button>
+        <button onclick="closeEdit()" class="ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Goal Setting Modal with Deadline -->
+  <div class="modal-overlay" id="goalModal" role="dialog" aria-modal="true" aria-labelledby="goalModalTitle" style="display: none;">
+    <div class="modal">
+      <h2 id="goalModalTitle">Set Growth Goal 🎯</h2>
+      <p style="margin-bottom: 15px;">
+        Enter your growth target. Current net growth: <span id="currentNetGrowthDisplay">0</span>
+      </p>
+      <input type="number" id="goalInput" placeholder="Enter goal value" aria-label="Growth goal">
+      <div class="range-info" style="margin-top: 5px;">Recommended: 50 to 100 points</div>
+      
+      <div style="margin: 15px 0;">
+        <label for="goalDeadline" style="display: block; margin-bottom: 8px; font-weight: 600;">Deadline (Optional):</label>
+        <input type="date" id="goalDeadline" aria-label="Goal deadline">
+        <div class="range-info">Add urgency by setting a deadline</div>
+      </div>
+      
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button onclick="saveGoal()" style="flex: 1;" class="success">Set Goal</button>
+        <button onclick="clearGoal()" class="warn">Clear Goal</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ================= GLOBAL VARIABLES =================
+    const KEYS = {
+      BASE: 'pg_base',
+      DATA: 'pg_data',
+      LAST_VISIT: 'pg_last_visit',
+      STREAK: 'pg_streak',
+      MILESTONES: 'pg_milestones',
+      GOAL: 'pg_goal',
+      BACKUP: 'pg_backup'
+    };
+
+    let currentTheme = localStorage.getItem('pg_theme') || 'dark';
+    let particleAnimationId = null;
+    let particleCanvas = null;
+    let particleCtx = null;
+    let particles = [];
+    let baseValue = 0;
+    let entries = [];
+    let streakData = { count: 0, lastDate: "" };
+    let milestones = { "5": false, "10": false, "20": false, "50": false };
+    let goal = null;
+    let chartInstance = null;
+    let editingDate = null;
+    let bannerTimeout = null;
+    let isPageVisible = true;
+    let audioContext = null;
+    let userHasInteracted = false;
+    let deadlineCheckInterval = null;
+
+    // ================= UTILITY FUNCTIONS =================
+    const toYMD = (d) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    const todayYMD = () => toYMD(new Date());
+
+    const parseYMD = (s) => {
+      const [y, m, d] = s.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    };
+
+    const addDays = (date, days) => {
+      const d = new Date(date.getTime());
+      d.setDate(d.getDate() + days);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    };
+
+    const formatShort = (s) => {
+      const d = parseYMD(s);
+      return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+    };
+
+    const daysBetween = (date1, date2) => {
+      const diffTime = Math.abs(date2 - date1);
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    };
+
+    // ================= DEADLINE & URGENCY FUNCTIONS =================
+    function calculateRemainingDays(deadlineDate) {
+      if (!deadlineDate) return null;
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const deadline = parseYMD(deadlineDate);
+      
+      const diffTime = deadline - today;
+      const remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      return remainingDays;
+    }
+
+    function getUrgencyLevel(remainingDays) {
+      if (remainingDays === null) return 'none';
+      if (remainingDays <= 0) return 'overdue';
+      if (remainingDays <= 3) return 'critical';
+      if (remainingDays <= 7) return 'high';
+      if (remainingDays <= 14) return 'medium';
+      return 'low';
+    }
+
+    function checkDeadlineUrgency() {
+      if (!goal || !goal.deadline || goal.achieved) return;
+      
+      const remainingDays = calculateRemainingDays(goal.deadline);
+      const urgency = getUrgencyLevel(remainingDays);
+      
+      // Update header warning
+      const warningElement = document.getElementById('headerDeadlineWarning');
+      const badgeElement = document.getElementById('deadlineWarningBadge');
+      
+      if (urgency === 'overdue') {
+        warningElement.style.display = 'block';
+        badgeElement.textContent = `⚠️ Deadline Passed! ${Math.abs(remainingDays)} days overdue`;
+        badgeElement.className = 'badge badge-red';
+        
+        // Show notification once a day for overdue
+        const today = todayYMD();
+        const lastNotified = localStorage.getItem('pg_deadline_notified');
+        if (lastNotified !== today) {
+          showNotification(`Goal deadline passed! You're ${Math.abs(remainingDays)} days overdue.`, 'error');
+          localStorage.setItem('pg_deadline_notified', today);
+        }
+      } else if (urgency === 'critical') {
+        warningElement.style.display = 'block';
+        badgeElement.textContent = `⏰ ${remainingDays} days left - URGENT!`;
+        badgeElement.className = 'badge badge-red';
+      } else if (urgency === 'high') {
+        warningElement.style.display = 'block';
+        badgeElement.textContent = `⚠️ ${remainingDays} days left`;
+        badgeElement.className = 'badge badge-orange';
+      } else if (urgency === 'medium') {
+        warningElement.style.display = 'block';
+        badgeElement.textContent = `📅 ${remainingDays} days left`;
+        badgeElement.className = 'badge badge-orange';
+      } else if (urgency === 'low') {
+        warningElement.style.display = 'block';
+        badgeElement.textContent = `🎯 ${remainingDays} days left`;
+        badgeElement.className = 'badge badge-green';
+      } else {
+        warningElement.style.display = 'none';
+      }
+      
+      return { remainingDays, urgency };
+    }
+
+    // ================= GOAL TIMELINE FUNCTIONS =================
+    function renderGoalTimeline() {
+      const container = document.getElementById('goalTimelineContainer');
+      const timelineBar = document.getElementById('goalTimelineBar');
+      
+      if (!goal || !entries.length) {
+        container.style.display = 'none';
+        return;
+      }
+      
+      container.style.display = 'block';
+      timelineBar.innerHTML = '';
+      
+      // Get sorted entries
+      const sortedEntries = [...entries].sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
+      
+      // Calculate cumulative values
+      let cumulative = baseValue;
+      const cumulativeData = sortedEntries.map(entry => {
+        cumulative += entry.val;
+        return {
+          date: entry.date,
+          value: cumulative
+        };
+      });
+      
+      // Check deadline urgency
+      const deadlineInfo = checkDeadlineUrgency();
+      
+      // Find when goal was reached
+      let goalReachedDate = null;
+      for (const data of cumulativeData) {
+        if (data.value - baseValue >= goal.target) {
+          goalReachedDate = data.date;
+          break;
+        }
+      }
+      
+      // Create goal marker at appropriate position
+      if (goalReachedDate) {
+        const reachedIndex = cumulativeData.findIndex(d => d.date === goalReachedDate);
+        const positionPercent = ((reachedIndex + 1) / cumulativeData.length) * 100;
+        
+        const marker = document.createElement('div');
+        marker.className = 'goal-marker reached';
+        marker.style.left = `${positionPercent}%`;
+        marker.title = `Goal reached on ${goalReachedDate}`;
+        
+        const label = document.createElement('div');
+        label.className = 'goal-label';
+        label.textContent = `🎯 ${goalReachedDate}`;
+        
+        marker.appendChild(label);
+        timelineBar.appendChild(marker);
+      } else {
+        // Goal not reached yet - show projected date
+        const currentNetGrowth = cumulativeData[cumulativeData.length - 1]?.value - baseValue || 0;
+        const avgDailyGrowth = entries.reduce((sum, e) => sum + e.val, 0) / entries.length;
+        
+        if (avgDailyGrowth > 0) {
+          const remainingPoints = goal.target - currentNetGrowth;
+          const projectedDays = Math.ceil(remainingPoints / avgDailyGrowth);
+          const projectedDate = addDays(parseYMD(sortedEntries[sortedEntries.length - 1].date), projectedDays);
+          const projectedPercent = Math.min(100, ((sortedEntries.length + projectedDays) / (sortedEntries.length + projectedDays + 10)) * 100);
+          
+          const marker = document.createElement('div');
+          marker.className = 'goal-marker';
+          
+          // Apply urgency class if deadline is near
+          if (deadlineInfo && deadlineInfo.urgency === 'critical') {
+            marker.classList.add('urgent');
+            
+            const warning = document.createElement('div');
+            warning.className = 'deadline-warning';
+            warning.textContent = `URGENT! ${deadlineInfo.remainingDays}d`;
+            marker.appendChild(warning);
+          } else if (deadlineInfo && deadlineInfo.urgency === 'high') {
+            marker.classList.add('urgent');
+          }
+          
+          marker.style.left = `${projectedPercent}%`;
+          marker.title = `Projected: ${toYMD(projectedDate)}`;
+          
+          const label = document.createElement('div');
+          label.className = 'goal-label';
+          label.textContent = `📅 ${toYMD(projectedDate)}`;
+          
+          marker.appendChild(label);
+          timelineBar.appendChild(marker);
+        }
+      }
+      
+      // Add current position marker
+      const currentPositionPercent = 100;
+      const currentMarker = document.createElement('div');
+      currentMarker.className = 'goal-marker';
+      currentMarker.style.left = `${currentPositionPercent}%`;
+      currentMarker.style.background = currentTheme === 'light' ? '#6366f1' : '#30d158';
+      currentMarker.title = `Current position`;
+      
+      const currentLabel = document.createElement('div');
+      currentLabel.className = 'goal-label';
+      currentLabel.textContent = `📍 Today`;
+      
+      currentMarker.appendChild(currentLabel);
+      timelineBar.appendChild(currentMarker);
+    }
+
+    // ================= INPUT VALIDATION FUNCTIONS =================
+    function sanitizeInput(str) {
+      let cleaned = str.replace(/[^0-9.\-]/g, '');
+      
+      const dotIndex = cleaned.indexOf('.');
+      if (dotIndex !== -1) {
+        const beforeDot = cleaned.substring(0, dotIndex + 1);
+        const afterDot = cleaned.substring(dotIndex + 1).replace(/\./g, '');
+        cleaned = beforeDot + afterDot;
+      }
+      
+      const dashIndex = cleaned.indexOf('-');
+      if (dashIndex > 0) {
+        cleaned = cleaned.replace(/-/g, '');
+      } else if (dashIndex === 0) {
+        const afterFirstDash = cleaned.substring(1).replace(/-/g, '');
+        cleaned = '-' + afterFirstDash;
+      }
+      
+      return cleaned;
+    }
+
+    function parseInputValue(inputStr) {
+      if (!inputStr || inputStr === '-' || inputStr.trim() === '') {
+        return 0;
+      }
+
+      const sanitized = sanitizeInput(inputStr);
+      if (sanitized === '' || sanitized === '-') {
+        return 0;
+      }
+
+      const num = parseFloat(sanitized);
+      if (isNaN(num)) {
+        return 0;
+      }
+
+      return clampValue(num);
+    }
+
+    function clampValue(value) {
+      return Math.max(-5, Math.min(5, value));
+    }
+
+    function formatInputValue(value) {
+      if (value === 0) {
+        return '-';
+      }
+      return value.toString();
+    }
+
+    // ================= THEME MANAGEMENT =================
+    function initTheme() {
+      document.body.className = `theme-${currentTheme}`;
+      updateThemeSwitcherIcon();
+      
+      initParticleSystem();
+      updateChartTheme();
+    }
+
+    function toggleTheme() {
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      localStorage.setItem('pg_theme', currentTheme);
+      
+      document.body.className = `theme-${currentTheme}`;
+      updateThemeSwitcherIcon();
+      
+      // Reinitialize particles with new theme
+      stopParticleSystem();
+      setTimeout(() => {
+        initParticleSystem();
+      }, 100);
+      
+      updateChartTheme();
+      updateTodayBanner();
+      render();
+    }
+
+    function updateThemeSwitcherIcon() {
+      const switcher = document.getElementById('themeSwitcher');
+      switcher.textContent = currentTheme === 'light' ? '🌙' : '☀️';
+      switcher.setAttribute('aria-label', `Switch to ${currentTheme === 'light' ? 'dark' : 'light'} theme`);
+    }
+
+    // ================= PARTICLE SYSTEM - ADJUSTED FOR BOTH THEMES =================
+    function initParticleSystem() {
+      if (!isPageVisible) return;
+      
+      particleCanvas = document.getElementById('bgParticles');
+      if (!particleCanvas) return;
+      
+      particleCtx = particleCanvas.getContext('2d');
+      resizeParticleCanvas();
+      
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      window.addEventListener('resize', resizeParticleCanvas);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      // Theme-based particle settings
+      let PARTICLE_COUNT, PARTICLE_COLOR, PARTICLE_SPEED, CLEAR_COLOR;
+      
+      if (currentTheme === 'light') {
+        // Light theme - reduced particles but not gone
+        PARTICLE_COUNT = isMobile ? 20 : 40;
+        PARTICLE_COLOR = 'rgba(99, 102, 241, 0.1)'; // Light indigo with low opacity
+        PARTICLE_SPEED = 0.08; // Slower movement
+        CLEAR_COLOR = 'rgba(255, 255, 255, 0.02)'; // Very faint clear
+      } else {
+        // Dark theme - more particles
+        PARTICLE_COUNT = isMobile ? 60 : 120;
+        PARTICLE_COLOR = 'rgba(48, 209, 88, 0.12)'; // Green with opacity
+        PARTICLE_SPEED = 0.15; // Normal speed
+        CLEAR_COLOR = 'rgba(7, 10, 16, 0.1)'; // Dark clear
+      }
+      
+      particles = [];
+      
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+          x: Math.random() * particleCanvas.width,
+          y: Math.random() * particleCanvas.height,
+          vx: (Math.random() - 0.5) * PARTICLE_SPEED,
+          vy: (Math.random() - 0.5) * PARTICLE_SPEED,
+          radius: Math.random() * 1.2 + 0.5,
+          color: PARTICLE_COLOR.replace('0.1', (Math.random() * 0.1 + 0.05).toFixed(2))
+        });
+      }
+      
+      animateParticles();
+    }
+
+    function resizeParticleCanvas() {
+      if (!particleCanvas) return;
+      
+      const dpr = window.devicePixelRatio || 1;
+      particleCanvas.width = window.innerWidth * dpr;
+      particleCanvas.height = window.innerHeight * dpr;
+      particleCanvas.style.width = `${window.innerWidth}px`;
+      particleCanvas.style.height = `${window.innerHeight}px`;
+      
+      if (particleCtx) {
+        particleCtx.scale(dpr, dpr);
+      }
+    }
+
+    function animateParticles() {
+      if (!particleCanvas || !particleCtx || !isPageVisible) {
+        if (particleAnimationId) {
+          cancelAnimationFrame(particleAnimationId);
+          particleAnimationId = null;
+        }
+        return;
+      }
+      
+      // Theme-based clear color
+      const clearColor = currentTheme === 'light' 
+        ? 'rgba(255, 255, 255, 0.02)' 
+        : 'rgba(7, 10, 16, 0.1)';
+      
+      particleCtx.fillStyle = clearColor;
+      particleCtx.fillRect(0, 0, particleCanvas.width, particleCanvas.height);
+      
+      particles.forEach(particle => {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        
+        if (particle.x <= 0 || particle.x >= particleCanvas.width / (window.devicePixelRatio || 1)) {
+          particle.vx *= -1;
+        }
+        if (particle.y <= 0 || particle.y >= particleCanvas.height / (window.devicePixelRatio || 1)) {
+          particle.vy *= -1;
+        }
+        
+        particle.x = Math.max(0, Math.min(particleCanvas.width / (window.devicePixelRatio || 1), particle.x));
+        particle.y = Math.max(0, Math.min(particleCanvas.height / (window.devicePixelRatio || 1), particle.y));
+        
+        particleCtx.beginPath();
+        particleCtx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        particleCtx.fillStyle = particle.color;
+        particleCtx.fill();
+      });
+      
+      particleAnimationId = requestAnimationFrame(animateParticles);
+    }
+
+    function handleVisibilityChange() {
+      isPageVisible = !document.hidden;
+      if (isPageVisible) {
+        initParticleSystem();
+      } else {
+        stopParticleSystem();
+      }
+    }
+
+    function stopParticleSystem() {
+      if (particleAnimationId) {
+        cancelAnimationFrame(particleAnimationId);
+        particleAnimationId = null;
+      }
+      
+      if (particleCanvas && particleCtx) {
+        particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+      }
+      
+      window.removeEventListener('resize', resizeParticleCanvas);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+
+    // ================= NOTIFICATION SYSTEM =================
+    function showNotification(message, type = 'info') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.style.display = 'block';
+      
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3000);
+    }
+
+    // ================= CELEBRATION FUNCTIONS =================
+    function createConfetti() {
+      const colors = currentTheme === 'light' 
+        ? ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444']
+        : ['#30d158', '#64d2ff', '#ffd60a', '#ff453a'];
+
+      for (let i = 0; i < 120; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.setAttribute('aria-hidden', 'true');
+
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.backgroundColor = color;
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.top = '-10px';
+        confetti.style.width = Math.random() * 8 + 4 + 'px';
+        confetti.style.height = Math.random() * 8 + 4 + 'px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+
+        document.body.appendChild(confetti);
+
+        const animation = confetti.animate([
+          {
+            transform: `translate(0, 0) rotate(0deg)`,
+            opacity: 1
+          },
+          {
+            transform: `translate(${Math.random() * 150 - 75}px, 100vh) rotate(${Math.random() * 720}deg)`,
+            opacity: 0
+          }
+        ], {
+          duration: Math.random() * 2000 + 1500,
+          easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
+        });
+
+        animation.onfinish = () => {
+          if (confetti.parentNode) {
+            confetti.remove();
+          }
+        };
+      }
+    }
+
+    // ================= AUDIO FUNCTIONS =================
+    function initAudio() {
+      if (!userHasInteracted) return false;
+      
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+        
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function playSuccessSound() {
+      if (!initAudio()) return;
+      
+      try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
+        oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
+        
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } catch (e) {
+        console.log("Audio not supported");
+      }
+    }
+
+    function playNegativeSound() {
+      if (!initAudio()) return;
+      
+      try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(220, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(196, audioContext.currentTime + 0.1);
+        oscillator.frequency.setValueAtTime(174.61, audioContext.currentTime + 0.2);
+        
+        gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } catch (e) {
+        console.log("Audio not supported");
+      }
+    }
+
+    function playUrgentSound() {
+      if (!initAudio()) return;
+      
+      try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(349.23, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(311.13, audioContext.currentTime + 0.1);
+        oscillator.frequency.setValueAtTime(277.18, audioContext.currentTime + 0.2);
+        
+        gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+      } catch (e) {
+        console.log("Audio not supported");
+      }
+    }
+
+    function vibrateDevice(pattern = [50]) {
+      if (navigator.vibrate && 'vibrate' in navigator) {
+        try {
+          navigator.vibrate(pattern);
+        } catch (e) {
+          // Vibration not supported
+        }
+      }
+    }
+
+    // ================= MOTIVATIONAL MESSAGES =================
+    const motivationalMessages = [
+      "Consistency is Key! 🔑",
+      "Every small step counts! 👣",
+      "Keep pushing forward! 💪",
+      "Growth is a journey, not a destination! 🚗",
+      "You're doing great! 🌟",
+      "Progress, not perfection! 📈",
+      "Stay committed to your growth! 🌱",
+      "Your future self will thank you! 🙏",
+      "Small improvements add up! 🎯",
+      "Keep the momentum going! ⚡"
+    ];
+
+    const dailyMessages = {
+      positive: [
+        "Amazing work today! 🎉",
+        "You're on fire! 🔥",
+        "Incredible progress! 🚀",
+        "Keep it up! 👍",
+        "You're unstoppable! 💥"
+      ],
+      negative: [
+        "Tomorrow is a new day! 🌅",
+        "Learn and move forward! 📚",
+        "Setback is setup for comeback! 💪",
+        "Keep going, you got this! 🙌",
+        "Progress isn't always linear! 📉➡📈"
+      ]
+    };
+
+    // ================= TODAY STATUS BANNER =================
+    function updateTodayBanner() {
+      const today = todayYMD();
+      const todayEntry = entries.find(e => e.date === today);
+      const banner = document.getElementById('todayStatusBanner');
+
+      if (bannerTimeout) {
+        clearTimeout(bannerTimeout);
+        bannerTimeout = null;
+      }
+
+      if (!todayEntry) {
+        banner.classList.add('hidden');
+        return;
+      }
+
+      banner.classList.remove('hidden');
+      const val = todayEntry.val;
+
+      const statusText = document.getElementById('todayStatusText');
+      const statusSubtext = document.getElementById('todayStatusSubtext');
+      const statusEmoji = document.getElementById('todayStatusEmoji');
+
+      if (val >= 0) {
+        banner.classList.remove('negative');
+        statusText.innerText = `+${val} Points Gained!`;
+        const randomMsg = dailyMessages.positive[Math.floor(Math.random() * dailyMessages.positive.length)];
+        statusSubtext.innerText = randomMsg;
+        statusEmoji.innerText = val > 2 ? '🚀' : (val === 1 ? '👍' : '🔥');
+        
+        if (val >= 3) {
+          setTimeout(() => {
+            playSuccessSound();
+            createConfetti();
+          }, 300);
+        }
+      } else {
+        banner.classList.add('negative');
+        statusText.innerText = `${val} Points (Degrowth)`;
+        const randomMsg = dailyMessages.negative[Math.floor(Math.random() * dailyMessages.negative.length)];
+        statusSubtext.innerText = randomMsg;
+        statusEmoji.innerText = '📉';
+        setTimeout(() => {
+          playNegativeSound();
+        }, 300);
+        vibrateDevice([100, 50, 100]);
+      }
+
+      const hideTime = val >= 0 ? 8000 : 10000;
+      bannerTimeout = setTimeout(() => {
+        if (!banner.classList.contains('hidden')) {
+          banner.classList.add('hidden');
+        }
+      }, hideTime);
+    }
+
+    function closeTodayBanner() {
+      const banner = document.getElementById('todayStatusBanner');
+      banner.classList.add('hidden');
+      if (bannerTimeout) {
+        clearTimeout(bannerTimeout);
+        bannerTimeout = null;
+      }
+    }
+
+    // ================= STREAK CALCULATION =================
+    function calculateStreak() {
+      if (!entries || entries.length === 0) {
+        streakData = { count: 0, lastDate: "" };
+        localStorage.setItem(KEYS.STREAK, JSON.stringify(streakData));
+        return;
+      }
+
+      entries.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
+
+      let streak = 0;
+      let prevDate = null;
+
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const entry = entries[i];
+        if (entry.type !== 'manual' || entry.val < 0) {
+          break;
+        }
+
+        const entryDate = parseYMD(entry.date);
+        
+        if (!prevDate) {
+          streak = 1;
+          prevDate = entryDate;
+          continue;
+        }
+
+        const diff = daysBetween(entryDate, prevDate);
+        if (diff === 1) {
+          streak++;
+          prevDate = entryDate;
+        } else {
+          break;
+        }
+      }
+
+      streakData.count = streak;
+      streakData.lastDate = streak > 0 ? toYMD(prevDate) : "";
+
+      try {
+        localStorage.setItem(KEYS.STREAK, JSON.stringify(streakData));
+      } catch (e) {
+        console.error('Error saving streak data:', e);
+      }
+    }
+
+    // ================= CORE APP FUNCTIONS =================
+    function initApp() {
+      try {
+        baseValue = parseFloat(localStorage.getItem(KEYS.BASE)) || 0;
+        entries = JSON.parse(localStorage.getItem(KEYS.DATA) || '[]');
+        streakData = JSON.parse(localStorage.getItem(KEYS.STREAK) || '{"count": 0, "lastDate": ""}');
+        milestones = JSON.parse(localStorage.getItem(KEYS.MILESTONES) || '{"5": false, "10": false, "20": false, "50": false}');
+        goal = JSON.parse(localStorage.getItem(KEYS.GOAL) || 'null');
+      } catch (e) {
+        console.error('Error loading data:', e);
+        baseValue = 0;
+        entries = [];
+        streakData = { count: 0, lastDate: "" };
+        milestones = { "5": false, "10": false, "20": false, "50": false };
+        goal = null;
+      }
+
+      document.getElementById('baseInput').value = baseValue;
+
+      const randomIndex = Math.floor(Math.random() * motivationalMessages.length);
+      document.getElementById('motivationalQuote').textContent = motivationalMessages[randomIndex];
+
+      if (!entries || entries.length === 0) {
+        entries = [];
+        render();
+        setTimeout(() => {
+          openDailyModal();
+        }, 800);
+        return;
+      }
+
+      processMissedDays();
+      calculateStreak();
+      checkTodayPrompt();
+      render();
+      updateTodayBanner();
+      checkMilestones();
+      checkGoalAchievement();
+      
+      // Start deadline check interval
+      if (deadlineCheckInterval) {
+        clearInterval(deadlineCheckInterval);
+      }
+      deadlineCheckInterval = setInterval(checkDeadlineUrgency, 60000); // Check every minute
+    }
+
+    function openDailyModal() {
+      const modal = document.getElementById('dailyModal');
+      modal.style.display = 'flex';
+
+      const input = document.getElementById('dailyInput');
+      input.value = '-';
+      input.setAttribute('aria-label', 'Enter today\'s points between -5 and +5');
+
+      setTimeout(() => {
+        input.focus();
+        input.setSelectionRange(0, input.value.length);
+      }, 100);
+    }
+
+    function processMissedDays() {
+      if (!entries || entries.length === 0) return;
+
+      entries.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
+
+      const last = parseYMD(entries[entries.length - 1].date);
+      const today = parseYMD(todayYMD());
+      let curr = addDays(last, 1);
+
+      let changed = false;
+      while (curr < today) {
+        const ds = toYMD(curr);
+        if (!entries.find(e => e.date === ds)) {
+          entries.push({ date: ds, val: -1, type: 'auto' });
+          changed = true;
+        }
+        curr = addDays(curr, 1);
+      }
+
+      if (changed) {
+        saveData();
+      }
+    }
+
+    function checkTodayPrompt() {
+      const today = todayYMD();
+      const hasToday = entries.some(e => e.date === today);
+      if (!hasToday) {
+        setTimeout(() => {
+          openDailyModal();
+        }, 1200);
+      }
+    }
+
+    function submitDaily() {
+      const inputStr = document.getElementById('dailyInput').value;
+      const v = parseInputValue(inputStr);
+
+      const clampedValue = clampValue(v);
+
+      if (Math.abs(v) > 5) {
+        showNotification(`Value clamped to ${clampedValue} (range is -5 to +5)`, 'info');
+      }
+
+      addEntry(todayYMD(), clampedValue, 'manual');
+      document.getElementById('dailyModal').style.display = 'none';
+      document.getElementById('dailyInput').value = '';
+      vibrateDevice([30]);
+      showNotification('Entry saved successfully!', 'success');
+    }
+
+    function skipDaily() {
+      if (confirm("Are you sure? This will add -1 point for today.")) {
+        addEntry(todayYMD(), -1, 'skipped');
+        document.getElementById('dailyModal').style.display = 'none';
+        document.getElementById('dailyInput').value = '';
+        vibrateDevice([50]);
+        showNotification('Skipped today. -1 point added.', 'info');
+      }
+    }
+
+    // ================= MILESTONE CHECK =================
+    function checkMilestones() {
+      const current = entries.reduce((sum, entry) => sum + entry.val, baseValue);
+      const netGrowth = current - baseValue;
+
+      const milestonePoints = [5, 10, 20, 50];
+
+      milestonePoints.forEach(point => {
+        if (netGrowth >= point && !milestones[point]) {
+          milestones[point] = true;
+          try {
+            localStorage.setItem(KEYS.MILESTONES, JSON.stringify(milestones));
+          } catch (e) {
+            console.error('Error saving milestone:', e);
+          }
+
+          setTimeout(() => {
+            showNotification(`🎉 Congratulations! You've reached +${point} net growth! 🎉`, 'success');
+            createConfetti();
+            playSuccessSound();
+          }, 1000);
+        }
+      });
+    }
+
+    // ================= GOAL MANAGEMENT WITH DEADLINE =================
+    function loadGoal() {
+      try {
+        const saved = localStorage.getItem(KEYS.GOAL);
+        if (saved) {
+          goal = JSON.parse(saved);
+        }
+      } catch (e) {
+        console.error('Error loading goal:', e);
+        goal = null;
+      }
+    }
+
+    function openGoalModal() {
+      const current = entries.reduce((sum, entry) => sum + entry.val, baseValue);
+      const netGrowth = current - baseValue;
+      document.getElementById('currentNetGrowthDisplay').textContent = netGrowth.toFixed(2);
+      
+      if (goal) {
+        document.getElementById('goalInput').value = goal.target;
+        if (goal.deadline) {
+          document.getElementById('goalDeadline').value = goal.deadline;
+        } else {
+          // Set default deadline to 30 days from now
+          const defaultDeadline = new Date();
+          defaultDeadline.setDate(defaultDeadline.getDate() + 30);
+          document.getElementById('goalDeadline').value = toYMD(defaultDeadline);
+        }
+      } else {
+        document.getElementById('goalInput').value = '';
+        // Set default deadline to 30 days from now
+        const defaultDeadline = new Date();
+        defaultDeadline.setDate(defaultDeadline.getDate() + 30);
+        document.getElementById('goalDeadline').value = toYMD(defaultDeadline);
+      }
+      
+      document.getElementById('goalModal').style.display = 'flex';
+      setTimeout(() => {
+        document.getElementById('goalInput').focus();
+      }, 0);
+    }
+
+    function closeGoalModal() {
+      document.getElementById('goalModal').style.display = 'none';
+    }
+
+    function saveGoal() {
+      const goalInput = document.getElementById('goalInput');
+      const target = parseFloat(goalInput.value);
+      const deadline = document.getElementById('goalDeadline').value;
+      
+      if (isNaN(target) || target <= 0) {
+        showNotification('Please enter a valid positive number for goal.', 'error');
+        return;
+      }
+      
+      if (deadline) {
+        const today = new Date();
+        const deadlineDate = new Date(deadline);
+        if (deadlineDate < today) {
+          if (!confirm('The deadline you selected is in the past. Do you want to continue?')) {
+            return;
+          }
+        }
+      }
+      
+      goal = {
+        target: target,
+        setDate: todayYMD(),
+        achieved: false,
+        deadline: deadline || null
+      };
+      
+      localStorage.setItem(KEYS.GOAL, JSON.stringify(goal));
+      closeGoalModal();
+      showNotification('Goal set successfully! 🎯', 'success');
+      render();
+      vibrateDevice([50]);
+      
+      // Check urgency immediately
+      checkDeadlineUrgency();
+    }
+
+    function clearGoal() {
+      if (confirm('Are you sure you want to clear your goal?')) {
+        goal = null;
+        localStorage.removeItem(KEYS.GOAL);
+        closeGoalModal();
+        showNotification('Goal cleared.', 'info');
+        render();
+      }
+    }
+
+    function checkGoalAchievement() {
+      try {
+        if (!goal || goal.achieved) return;
+        
+        const current = entries.reduce((sum, entry) => sum + entry.val, baseValue);
+        const netGrowth = current - baseValue;
+        
+        if (netGrowth >= goal.target && !goal.achieved) {
+          goal.achieved = true;
+          goal.achievedDate = todayYMD();
+          localStorage.setItem(KEYS.GOAL, JSON.stringify(goal));
+          
+          setTimeout(() => {
+            showNotification(`🎉 GOAL ACHIEVED! You reached ${goal.target} net growth! 🎉`, 'success');
+            createConfetti();
+            playSuccessSound();
+            vibrateDevice([200, 100, 200, 100, 200]);
+          }, 1500);
+        }
+      } catch (e) {
+        console.error('Goal achievement check error:', e);
+      }
+    }
+
+    // ================= ENTRY MANAGEMENT =================
+    function addEntry(date, val, type) {
+      entries = entries.filter(e => e.date !== date);
+      entries.push({ date, val, type });
+      saveData();
+      calculateStreak();
+      render();
+
+      if (date === todayYMD()) {
+        setTimeout(() => {
+          updateTodayBanner();
+        }, 400);
+      }
+
+      checkMilestones();
+      checkGoalAchievement();
+    }
+
+    function deleteEntry(date) {
+      if (confirm('Delete this entry?')) {
+        entries = entries.filter(e => e.date !== date);
+        saveData();
+        calculateStreak();
+        render();
+
+        if (date === todayYMD()) {
+          document.getElementById('todayStatusBanner').classList.add('hidden');
+          checkTodayPrompt();
+        }
+        vibrateDevice([50, 30]);
+        showNotification('Entry deleted.', 'info');
+      }
+    }
+
+    window.openEdit = function (date) {
+      const entry = entries.find(e => e.date === date);
+      if (!entry) return;
+      editingDate = date;
+      document.getElementById('editDateDisplay').innerText = `Date: ${date}`;
+      document.getElementById('editInput').value = formatInputValue(entry.val);
+      document.getElementById('editModal').style.display = 'flex';
+      
+      setTimeout(() => {
+        const input = document.getElementById('editInput');
+        input.focus();
+        input.setSelectionRange(0, input.value.length);
+      }, 100);
+    };
+
+    function saveEdit() {
+      const inputStr = document.getElementById('editInput').value;
+      const val = parseInputValue(inputStr);
+
+      const clampedValue = clampValue(val);
+
+      if (Math.abs(val) > 5) {
+        showNotification(`Value clamped to ${clampedValue} (range is -5 to +5)`, 'info');
+      }
+
+      const idx = entries.findIndex(e => e.date === editingDate);
+      if (idx > -1) {
+        entries[idx].val = clampedValue;
+        entries[idx].type = 'manual';
+        saveData();
+        calculateStreak();
+        render();
+
+        if (editingDate === todayYMD()) {
+          setTimeout(() => {
+            updateTodayBanner();
+          }, 400);
+        }
+        vibrateDevice([30]);
+        showNotification('Entry updated successfully!', 'success');
+      }
+      closeEdit();
+    }
+
+    function closeEdit() {
+      document.getElementById('editModal').style.display = 'none';
+      editingDate = null;
+    }
+
+    // ================= DATA PERSISTENCE =================
+    function saveData() {
+      try {
+        localStorage.setItem(KEYS.DATA, JSON.stringify(entries));
+        backupData();
+      } catch (e) {
+        console.error('Error saving data:', e);
+        showNotification('Storage is full! Please export and clear some data.', 'error');
+      }
+    }
+
+    function backupData() {
+      try {
+        const backup = {
+          base: baseValue,
+          entries: entries,
+          streak: streakData,
+          milestones: milestones,
+          goal: goal,
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem(KEYS.BACKUP, JSON.stringify(backup));
+      } catch (e) {
+        console.error('Backup error:', e);
+      }
+    }
+
+    function saveBaseSettings() {
+      const newBase = parseFloat(document.getElementById('baseInput').value);
+      if (isNaN(newBase)) {
+        showNotification('Please enter a valid number', 'error');
+        return;
+      }
+      
+      baseValue = newBase;
+      try {
+        localStorage.setItem(KEYS.BASE, baseValue.toString());
+        backupData();
+      } catch (e) {
+        console.error('Error saving base:', e);
+        showNotification('Error saving base value.', 'error');
+      }
+      
+      vibrateDevice([30]);
+      showNotification('Base value updated.', 'success');
+      render();
+    }
+
+    // ================= RENDER FUNCTIONS =================
+    function render() {
+      entries.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
+      calculateStreak();
+
+      let current = baseValue;
+      const tableData = entries.map(e => {
+        current += e.val;
+        return { ...e, total: parseFloat(current.toFixed(2)) };
+      });
+
+      // Update Stats
+      const netGrowth = current - baseValue;
+
+      const currentElem = document.getElementById('dispCurrent');
+      const growthElem = document.getElementById('dispGrowth');
+
+      currentElem.innerText = current.toFixed(2);
+      growthElem.innerText = (netGrowth >= 0 ? '+' : '') + netGrowth.toFixed(2);
+      growthElem.className = 'stat-value ' + (netGrowth >= 0 ? 'text-green' : 'text-red');
+
+      document.getElementById('dispDays').innerText = entries.length;
+
+      // Calculate Average Daily Growth
+      const days = entries.length;
+      const avgGrowth = days > 0 ? (netGrowth / days) : 0;
+      const avgGrowthElem = document.getElementById('dispAvgGrowth');
+      avgGrowthElem.innerText = (avgGrowth >= 0 ? '+' : '') + avgGrowth.toFixed(2);
+      avgGrowthElem.className = 'stat-value ' + (avgGrowth >= 0 ? 'text-green' : 'text-red');
+
+      // Update Progress Bars
+      const currentProgress = document.getElementById('currentProgress');
+      const growthProgress = document.getElementById('growthProgress');
+
+      setTimeout(() => {
+        const allTotals = tableData.map(d => d.total);
+        const minTotal = Math.min(...allTotals, baseValue);
+        const maxTotal = Math.max(...allTotals, baseValue);
+        const range = Math.max(maxTotal - minTotal, 1);
+        
+        const currentProgressPercent = ((current - minTotal) / range) * 100;
+        currentProgress.style.width = Math.max(0, Math.min(100, currentProgressPercent)) + '%';
+        
+        const maxAbsGrowth = Math.max(Math.abs(netGrowth), 10);
+        const growthProgressPercent = 50 + (netGrowth / (maxAbsGrowth * 2)) * 100;
+        growthProgress.style.width = Math.max(0, Math.min(100, growthProgressPercent)) + '%';
+      }, 100);
+
+      // Update Goal Progress with Deadline Urgency
+      const goalContainer = document.getElementById('goalProgressContainer');
+      const goalProgressText = document.getElementById('goalProgressText');
+      const goalProgressFill = document.getElementById('goalProgressFill');
+      
+      if (goal && !goal.achieved) {
+        const progress = Math.min(100, (netGrowth / goal.target) * 100);
+        
+        // Check deadline urgency
+        const deadlineInfo = checkDeadlineUrgency();
+        let progressText = `Goal: ${progress.toFixed(1)}%`;
+        
+        if (deadlineInfo && deadlineInfo.remainingDays !== null) {
+          if (deadlineInfo.remainingDays <= 0) {
+            progressText = `⚠️ ${progress.toFixed(1)}% (${Math.abs(deadlineInfo.remainingDays)} days overdue)`;
+            goalProgressFill.classList.add('urgent');
+            goalProgressFill.classList.remove('reached');
+            
+            // Play urgent sound if just became overdue
+            const today = todayYMD();
+            const lastOverdueNotification = localStorage.getItem('pg_overdue_notified');
+            if (lastOverdueNotification !== today && deadlineInfo.remainingDays === 0) {
+              playUrgentSound();
+              localStorage.setItem('pg_overdue_notified', today);
+            }
+          } else if (deadlineInfo.remainingDays <= 3) {
+            progressText = `⏰ ${progress.toFixed(1)}% (${deadlineInfo.remainingDays} days left)`;
+            goalProgressFill.classList.add('urgent');
+            goalProgressFill.classList.remove('reached');
+            
+            // Play urgent sound on first day of critical period
+            const today = todayYMD();
+            const lastUrgentNotification = localStorage.getItem('pg_urgent_notified');
+            if (lastUrgentNotification !== today && deadlineInfo.remainingDays === 3) {
+              playUrgentSound();
+              localStorage.setItem('pg_urgent_notified', today);
+            }
+          } else if (deadlineInfo.remainingDays <= 7) {
+            progressText = `⚠️ ${progress.toFixed(1)}% (${deadlineInfo.remainingDays} days left)`;
+            goalProgressFill.classList.remove('urgent');
+            goalProgressFill.classList.remove('reached');
+          } else {
+            progressText = `🎯 ${progress.toFixed(1)}% (${deadlineInfo.remainingDays} days left)`;
+            goalProgressFill.classList.remove('urgent');
+            goalProgressFill.classList.remove('reached');
+          }
+        } else {
+          progressText = `Goal: ${progress.toFixed(1)}%`;
+          goalProgressFill.classList.remove('urgent');
+          goalProgressFill.classList.remove('reached');
+        }
+        
+        goalProgressText.textContent = progressText;
+        goalProgressFill.style.width = `${progress}%`;
+        goalContainer.style.display = 'block';
+      } else if (goal && goal.achieved) {
+        goalProgressText.textContent = `🎉 Goal Achieved!`;
+        goalProgressFill.style.width = '100%';
+        goalProgressFill.classList.add('reached');
+        goalProgressFill.classList.remove('urgent');
+        goalContainer.style.display = 'block';
+      } else {
+        goalContainer.style.display = 'none';
+      }
+
+      // Update Achievement Badges
+      const badgeContainer = document.getElementById('achievementBadges');
+      badgeContainer.innerHTML = '';
+
+      if (streakData.count > 0) {
+        const streakBadge = document.createElement('div');
+        streakBadge.className = 'achievement-badge';
+        streakBadge.innerHTML = `🔥 ${streakData.count}-Day Streak`;
+        badgeContainer.appendChild(streakBadge);
+      }
+
+      // Render Table
+      const tbody = document.getElementById('logTable');
+      tbody.innerHTML = '';
+
+      [...tableData].reverse().forEach((row, index) => {
+        const isPos = row.val >= 0;
+        const isAuto = row.type === 'auto' || row.type === 'skipped';
+        const badgeClass = isAuto ? 'badge-auto' : (isPos ? 'badge-green' : 'badge-red');
+        const badgeText = isAuto ? (row.type === 'skipped' ? 'Skipped (-1)' : 'Auto (-1)') : (isPos ? `+${row.val}` : row.val);
+
+        let statusClass = 'manual';
+        let statusText = 'MANUAL';
+        
+        if (isAuto) {
+          statusClass = 'auto';
+          statusText = 'AUTO';
+        } else if (!isPos) {
+          statusClass = 'negative';
+          statusText = 'NEG';
+        }
+
+        const tr = document.createElement('tr');
+        if (isAuto) tr.classList.add('penalty-row');
+        tr.style.animationDelay = `${index * 0.03}s`;
+
+        tr.innerHTML = `
+          <td>${row.date}</td>
+          <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+          <td style="font-weight:bold">${row.total.toFixed(2)}</td>
+          <td>
+            <span class="hud-status ${statusClass}">${statusText}</span>
+          </td>
+          <td>
+            <button class="small" onclick="openEdit('${row.date}')" aria-label="Edit entry for ${row.date}">Edit</button>
+            <button class="small warn" onclick="deleteEntry('${row.date}')" aria-label="Delete entry for ${row.date}">×</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      renderChart(tableData);
+      renderGoalTimeline();
+    }
+
+    function renderChart(data) {
+      const ctx = document.getElementById('mainChart').getContext('2d');
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      const labels = data.map(d => formatShort(d.date));
+      const values = data.map(d => d.total);
+
+      const isLight = currentTheme === 'light';
+      const lineColor = isLight ? '#6366f1' : '#30d158';
+      const gradientColor = isLight ? 'rgba(99, 102, 241, 0.4)' : 'rgba(48, 209, 88, 0.45)';
+      const fadeColor = isLight ? 'rgba(99, 102, 241, 0.05)' : 'rgba(48, 209, 88, 0.06)';
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+      gradient.addColorStop(0, gradientColor);
+      gradient.addColorStop(1, fadeColor);
+
+      const allValues = [...values, baseValue];
+      const minValue = Math.min(...allValues);
+      const maxValue = Math.max(...allValues);
+      const range = maxValue - minValue;
+      const padding = range * 0.1;
+      
+      const chartMin = minValue - padding;
+      const chartMax = maxValue + padding;
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Growth Value',
+              data: values,
+              borderColor: lineColor,
+              backgroundColor: gradient,
+              fill: true,
+              tension: 0.4,
+              borderWidth: 3,
+              pointRadius: 4,
+              pointBackgroundColor: isLight ? '#ffffff' : '#ffffff',
+              pointBorderColor: lineColor,
+              pointBorderWidth: 2,
+              pointHoverRadius: 6,
+              pointHoverBackgroundColor: isLight ? '#ffffff' : '#ffffff',
+              pointHoverBorderColor: lineColor,
+              pointHoverBorderWidth: 3
+            },
+            {
+              label: 'Starting Base',
+              data: Array(values.length).fill(baseValue),
+              borderColor: isLight ? '#9ca3af' : '#6b7280',
+              borderWidth: 1,
+              borderDash: [5, 5],
+              fill: false,
+              pointRadius: 0,
+              tension: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.8)',
+              titleColor: isLight ? '#111827' : '#ffffff',
+              bodyColor: isLight ? '#374151' : '#e5e7eb',
+              borderColor: lineColor,
+              borderWidth: 1,
+              cornerRadius: 8,
+              padding: 12,
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    label += context.parsed.y.toFixed(2);
+                  }
+                  return label;
+                },
+                afterLabel: function(context) {
+                  if (context.datasetIndex === 0 && data[context.dataIndex]) {
+                    const entry = data[context.dataIndex];
+                    const dailyChange = entry.val;
+                    return `Daily: ${dailyChange >= 0 ? '+' : ''}${dailyChange}`;
+                  }
+                  return '';
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              grid: {
+                color: isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.06)',
+                drawBorder: false
+              },
+              ticks: {
+                color: isLight ? '#6b7280' : 'rgba(255, 255, 255, 0.7)',
+                font: {
+                  size: 12
+                },
+                callback: function(value) {
+                  return value.toFixed(1);
+                }
+              },
+              min: chartMin,
+              max: chartMax
+            },
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                color: isLight ? '#6b7280' : 'rgba(255, 255, 255, 0.7)',
+                font: {
+                  size: 11
+                },
+                maxRotation: 45
+              }
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          elements: {
+            line: {
+              tension: 0.4
+            }
+          },
+          animation: {
+            duration: 1000,
+            easing: 'easeOutQuart'
+          }
+        }
+      });
+
+      const chartInfo = document.getElementById('chartInfo');
+      if (data.length > 0) {
+        const firstDate = formatShort(data[0].date);
+        const lastDate = formatShort(data[data.length - 1].date);
+        let infoText = `Tracking from ${firstDate} to ${lastDate} • ${data.length} days • Streak: ${streakData.count}`;
+        
+        // Add deadline info if exists
+        if (goal && goal.deadline && !goal.achieved) {
+          const remainingDays = calculateRemainingDays(goal.deadline);
+          if (remainingDays !== null) {
+            if (remainingDays <= 0) {
+              infoText += ` • ⚠️ ${Math.abs(remainingDays)} days overdue`;
+            } else {
+              infoText += ` • 📅 ${remainingDays} days to deadline`;
+            }
+          }
+        }
+        
+        chartInfo.textContent = infoText;
+      } else {
+        chartInfo.textContent = 'No data yet. Add your first entry!';
+      }
+    }
+
+    function updateChartTheme() {
+      if (!chartInstance) return;
+      
+      const isLight = currentTheme === 'light';
+      const lineColor = isLight ? '#6366f1' : '#30d158';
+      const gradientColor = isLight ? 'rgba(99, 102, 241, 0.4)' : 'rgba(48, 209, 88, 0.45)';
+      const fadeColor = isLight ? 'rgba(99, 102, 241, 0.05)' : 'rgba(48, 209, 88, 0.06)';
+      
+      const ctx = chartInstance.ctx;
+      const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+      gradient.addColorStop(0, gradientColor);
+      gradient.addColorStop(1, fadeColor);
+      
+      chartInstance.data.datasets[0].borderColor = lineColor;
+      chartInstance.data.datasets[0].pointBorderColor = lineColor;
+      chartInstance.data.datasets[0].pointHoverBorderColor = lineColor;
+      chartInstance.data.datasets[0].backgroundColor = gradient;
+      
+      chartInstance.options.plugins.tooltip.backgroundColor = isLight ? 
+        'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.8)';
+      chartInstance.options.plugins.tooltip.titleColor = isLight ? '#111827' : '#ffffff';
+      chartInstance.options.plugins.tooltip.bodyColor = isLight ? '#374151' : '#e5e7eb';
+      
+      chartInstance.options.scales.y.grid.color = isLight ? 
+        'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.06)';
+      chartInstance.options.scales.x.ticks.color = isLight ? 
+        '#6b7280' : 'rgba(255, 255, 255, 0.7)';
+      
+      chartInstance.update('none');
+    }
+
+    // ================= IMPORT/EXPORT/RESET =================
+    function exportData() {
+      try {
+        const dataStr = JSON.stringify({
+          base: baseValue,
+          entries,
+          streak: streakData,
+          milestones: milestones,
+          goal: goal,
+          exportDate: new Date().toISOString(),
+          version: '1.1' // Updated version for deadline support
+        });
+        
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `growth_data_${todayYMD()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        playSuccessSound();
+        vibrateDevice([30]);
+        showNotification('Data exported as JSON!', 'success');
+      } catch (e) {
+        console.error('Error exporting data:', e);
+        showNotification('Error exporting data. Please try again.', 'error');
+      }
+    }
+
+    function exportDataCSV() {
+      try {
+        let current = baseValue;
+        let csv = 'Date,Growth,Total,Type\n';
+        
+        entries.forEach(entry => {
+          current += entry.val;
+          csv += `${entry.date},${entry.val},${current.toFixed(2)},${entry.type}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `growth_data_${todayYMD()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showNotification('Data exported as CSV!', 'success');
+      } catch (e) {
+        console.error('CSV export error:', e);
+        showNotification('CSV export failed.', 'error');
+      }
+    }
+
+    function exportChartImage() {
+      try {
+        const canvas = document.getElementById('mainChart');
+        const link = document.createElement('a');
+        link.download = `growth_chart_${todayYMD()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showNotification('Chart exported as image!', 'success');
+      } catch (e) {
+        console.error('Chart image export error:', e);
+        showNotification('Chart export failed.', 'error');
+      }
+    }
+
+    function importData(input) {
+      const file = input.files[0];
+      if (!file) return;
+      
+      if (file.size > 5 * 1024 * 1024) {
+        showNotification('File is too large. Maximum size is 5MB.', 'error');
+        input.value = '';
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const d = JSON.parse(e.target.result);
+          
+          if (!Array.isArray(d.entries)) {
+            throw new Error('Invalid data format');
+          }
+          
+          for (const entry of d.entries) {
+            if (!entry.date || !/^\d{4}-\d{2}-\d{2}$/.test(entry.date)) {
+              throw new Error('Invalid date format');
+            }
+            if (typeof entry.val !== 'number' || entry.val < -5 || entry.val > 5) {
+              throw new Error('Invalid value');
+            }
+          }
+          
+          entries = d.entries;
+          baseValue = typeof d.base === 'number' ? d.base : 0;
+          streakData = d.streak || { count: 0, lastDate: "" };
+          milestones = d.milestones || { "5": false, "10": false, "20": false, "50": false };
+          goal = d.goal || null;
+
+          try {
+            localStorage.setItem(KEYS.BASE, baseValue.toString());
+            localStorage.setItem(KEYS.DATA, JSON.stringify(entries));
+            localStorage.setItem(KEYS.STREAK, JSON.stringify(streakData));
+            localStorage.setItem(KEYS.MILESTONES, JSON.stringify(milestones));
+            if (goal) localStorage.setItem(KEYS.GOAL, JSON.stringify(goal));
+          } catch (storageError) {
+            console.error('Storage error:', storageError);
+          }
+
+          initApp();
+          updateTodayBanner();
+          
+          const today = todayYMD();
+          const todayEntry = entries.find(e => e.date === today);
+          if (todayEntry && todayEntry.val >= 3) {
+            setTimeout(() => {
+              createConfetti();
+              playSuccessSound();
+            }, 500);
+          }
+          
+          showNotification('Data imported successfully!', 'success');
+          vibrateDevice([50, 30, 50]);
+        } catch (err) {
+          console.error('Import error:', err);
+          showNotification('Invalid or corrupted data file', 'error');
+          playNegativeSound();
+        }
+        input.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAll() {
+      if (confirm('Warning: This will delete ALL data permanently! Are you sure?')) {
+        try {
+          localStorage.clear();
+          baseValue = 0;
+          entries = [];
+          streakData = { count: 0, lastDate: "" };
+          milestones = { "5": false, "10": false, "20": false, "50": false };
+          goal = null;
+          
+          document.getElementById('baseInput').value = 0;
+          render();
+          updateTodayBanner();
+          
+          playNegativeSound();
+          vibrateDevice([100, 50, 100]);
+          
+          setTimeout(() => {
+            openDailyModal();
+          }, 1000);
+          showNotification('All data has been reset.', 'info');
+        } catch (e) {
+          console.error('Reset error:', e);
+          showNotification('Reset failed.', 'error');
+        }
+      }
+    }
+
+    // ================= EVENT LISTENERS =================
+    function initEventListeners() {
+      document.addEventListener('click', () => {
+        userHasInteracted = true;
+      }, { once: true });
+      
+      document.getElementById('dailyInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submitDaily();
+        if (e.key === 'Escape') document.getElementById('dailyModal').style.display = 'none';
+      });
+
+      document.getElementById('editInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') saveEdit();
+        if (e.key === 'Escape') closeEdit();
+      });
+
+      document.getElementById('dailyInput').addEventListener('input', function (e) {
+        this.value = sanitizeInput(this.value);
+      });
+
+      document.getElementById('editInput').addEventListener('input', function (e) {
+        this.value = sanitizeInput(this.value);
+      });
+
+      document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+          if (e.target === this) {
+            this.style.display = 'none';
+          }
+        });
+      });
+
+      document.getElementById('themeSwitcher').addEventListener('click', toggleTheme);
+      
+      document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key === 't') {
+          toggleTheme();
+          e.preventDefault();
+        }
+        
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+          e.preventDefault();
+          openDailyModal();
+        }
+        
+        if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+          e.preventDefault();
+          exportData();
+        }
+        
+        if ((e.ctrlKey || e.metaKey) && e.key === 'g') {
+          e.preventDefault();
+          openGoalModal();
+        }
+      });
+    }
+
+    // ================= INITIALIZATION =================
+    function initialize() {
+      initTheme();
+      initEventListeners();
+      initApp();
+      
+      setInterval(() => {
+        const today = todayYMD();
+        const hasToday = entries.some(e => e.date === today);
+        if (!hasToday) {
+          checkTodayPrompt();
+        }
+      }, 120000);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+      initialize();
+    }
+
+    window.toggleTheme = toggleTheme;
+    window.submitDaily = submitDaily;
+    window.skipDaily = skipDaily;
+    window.saveEdit = saveEdit;
+    window.closeEdit = closeEdit;
+    window.closeTodayBanner = closeTodayBanner;
+    window.openEdit = openEdit;
+    window.openGoalModal = openGoalModal;
+    window.saveGoal = saveGoal;
+    window.clearGoal = clearGoal;
+    window.deleteEntry = deleteEntry;
+    window.saveBaseSettings = saveBaseSettings;
+    window.exportData = exportData;
+    window.exportDataCSV = exportDataCSV;
+    window.exportChartImage = exportChartImage;
+    window.resetAll = resetAll;
+  </script>
+</body>
+
+</html>
