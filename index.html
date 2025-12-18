@@ -1676,7 +1676,7 @@
       BACKUP: 'pg_backup',
       USER_ID: 'pg_user_id',
       SYNC_TIMESTAMP: 'pg_sync_timestamp',
-      HAS_SYNCED_ON_LOGIN: 'pg_has_synced_on_login' // NEW: Track if we've already synced on this login
+      HAS_SYNCED_ON_LOGIN: 'pg_has_synced_on_login'
     };
 
     let currentTheme = localStorage.getItem('pg_theme') || 'dark';
@@ -1703,7 +1703,7 @@
     let lastSyncTime = null;
     let syncQueue = [];
     let isOnline = navigator.onLine;
-    let hasSyncedOnThisLogin = false; // NEW: Track if we've synced on this login session
+    let hasSyncedOnThisLogin = localStorage.getItem(KEYS.HAS_SYNCED_ON_LOGIN) === 'true';
 
     // ================= UTILITY FUNCTIONS =================
     const toYMD = (d) => {
@@ -1753,12 +1753,21 @@
           updateAuthUI(true, user.email);
           showNotification(`Welcome back, ${user.email.split('@')[0]}!`, 'success');
           
-          // Reset the sync flag for new login
-          hasSyncedOnThisLogin = false;
-          localStorage.removeItem(KEYS.HAS_SYNCED_ON_LOGIN);
+          // Check if we've already synced in this session
+          const alreadySynced = localStorage.getItem(KEYS.HAS_SYNCED_ON_LOGIN) === 'true';
+          console.log("Already synced in this session?", alreadySynced);
           
-          // Load data from Firestore immediately on first login
-          loadFromFirestore(true); // Pass true to indicate it's first login
+          if (!alreadySynced) {
+            // FIRST TIME LOGIN IN THIS SESSION - Load from cloud
+            console.log("First login this session, loading from cloud...");
+            setTimeout(() => {
+              loadFromFirestore(true);
+            }, 500);
+          } else {
+            console.log("Already synced this session, skipping cloud load...");
+            // Just update UI, don't load from cloud
+            updateSyncStatus();
+          }
           
           // Start auto-sync interval
           startAutoSync();
@@ -1767,9 +1776,9 @@
           updateAuthUI(false);
           stopAutoSync();
           
-          // Reset sync flag on logout
-          hasSyncedOnThisLogin = false;
-          localStorage.removeItem(KEYS.HAS_SYNCED_ON_LOGIN);
+          // Reset sync flag only on logout, not on page refresh
+          // hasSyncedOnThisLogin = false;
+          // localStorage.removeItem(KEYS.HAS_SYNCED_ON_LOGIN);
         }
       });
       
@@ -1779,7 +1788,9 @@
         updateSyncStatus();
         if (currentUser && !hasSyncedOnThisLogin) {
           // If we haven't synced on this login yet, sync now
-          loadFromFirestore(true);
+          setTimeout(() => {
+            loadFromFirestore(true);
+          }, 500);
         }
       });
       
@@ -1924,7 +1935,7 @@
         const { createUserWithEmailAndPassword } = window.firebaseFunctions;
         await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
         
-        // Save current data to Firestore for new user
+        // NEW USER: Save current local data to Firestore
         await saveToFirestore();
         
         // Mark that we've synced on this login
@@ -1962,7 +1973,7 @@
         const { signOut } = window.firebaseFunctions;
         await signOut(window.firebaseAuth);
         
-        // Reset sync flag
+        // Reset sync flag on logout
         hasSyncedOnThisLogin = false;
         localStorage.removeItem(KEYS.HAS_SYNCED_ON_LOGIN);
         
@@ -2009,12 +2020,10 @@
     async function loadFromFirestore(isFirstLogin = false) {
       if (!currentUser || !window.firebaseDb || !window.firebaseFunctions) return false;
       
-      // Check if we should sync (first login OR manual sync request)
-      const shouldSyncOnLogin = isFirstLogin && !hasSyncedOnThisLogin;
-      const manualSyncRequest = !isFirstLogin && isSyncing;
-      
-      if (!shouldSyncOnLogin && !manualSyncRequest) {
-        return false; // Don't auto-sync if not first login
+      // If it's first login in this session, always sync
+      // Otherwise, only sync if manually triggered
+      if (!isFirstLogin && !isSyncing) {
+        return false;
       }
       
       try {
@@ -2027,13 +2036,13 @@
         
         if (docSnap.exists()) {
           const data = docSnap.data();
+          console.log("Cloud data found:", data);
           
-          // Merge with local data (use newer data if conflict)
-          const localTimestamp = localStorage.getItem(KEYS.SYNC_TIMESTAMP);
-          const remoteTimestamp = data.lastUpdated;
-          
-          if (!localTimestamp || new Date(remoteTimestamp) > new Date(localTimestamp)) {
-            // Remote data is newer, use it
+          // CRITICAL FIX: On first login, CLOUD DATA HAS PRIORITY
+          if (isFirstLogin) {
+            console.log("First login - CLOUD DATA PRIORITY");
+            
+            // Use cloud data (overwrites local)
             baseValue = data.base || 0;
             entries = data.entries || [];
             streakData = data.streak || { count: 0, lastDate: "" };
@@ -2043,41 +2052,72 @@
             // Save to localStorage
             saveData();
             
-            if (isFirstLogin) {
-              showNotification('Data loaded from cloud on login', 'success');
-            } else {
-              showNotification('Data synced from cloud', 'success');
-            }
+            showNotification('Data loaded from cloud on login', 'success');
             
+            // Update flag
+            hasSyncedOnThisLogin = true;
+            localStorage.setItem(KEYS.HAS_SYNCED_ON_LOGIN, 'true');
+            
+            // Update sync timestamp
+            lastSyncTime = new Date(data.lastUpdated || new Date());
+            localStorage.setItem(KEYS.SYNC_TIMESTAMP, lastSyncTime.toISOString());
+            
+            // Re-render everything
             render();
             updateTodayBanner();
-          } else {
-            // Local data is newer, push to cloud
-            await saveToFirestore();
+            updateSyncStatus(true);
             
-            if (isFirstLogin) {
+            return true;
+          } else {
+            // Manual sync - check timestamps
+            const localTimestamp = localStorage.getItem(KEYS.SYNC_TIMESTAMP);
+            const remoteTimestamp = data.lastUpdated;
+            
+            console.log("Local timestamp:", localTimestamp);
+            console.log("Remote timestamp:", remoteTimestamp);
+            
+            if (!localTimestamp || new Date(remoteTimestamp) > new Date(localTimestamp)) {
+              console.log("Remote data is newer, using it");
+              // Remote data is newer, use it
+              baseValue = data.base || 0;
+              entries = data.entries || [];
+              streakData = data.streak || { count: 0, lastDate: "" };
+              milestones = data.milestones || { "5": false, "10": false, "20": false, "50": false };
+              goal = data.goal || null;
+              
+              // Save to localStorage
+              saveData();
+              
+              showNotification('Data synced from cloud', 'success');
+              render();
+              updateTodayBanner();
+            } else {
+              console.log("Local data is newer or same, saving to cloud");
+              // Local data is newer or same, push to cloud
+              await saveToFirestore();
               showNotification('Local data uploaded to cloud', 'success');
             }
+            
+            lastSyncTime = new Date(remoteTimestamp);
+            updateSyncStatus(true);
+            return true;
           }
-          
-          lastSyncTime = new Date(remoteTimestamp);
-          
-          // Mark that we've synced on this login
-          if (isFirstLogin) {
-            hasSyncedOnThisLogin = true;
-            localStorage.setItem(KEYS.HAS_SYNCED_ON_LOGIN, 'true');
-          }
-          
-          updateSyncStatus(true);
-          return true;
         } else {
-          // No data in Firestore yet, save current data
-          await saveToFirestore();
+          // No data in Firestore yet
+          console.log("No cloud data found");
           
           if (isFirstLogin) {
+            console.log("First login - no cloud data, saving local to cloud");
+            // Save current local data to Firestore
+            await saveToFirestore();
+            
             hasSyncedOnThisLogin = true;
             localStorage.setItem(KEYS.HAS_SYNCED_ON_LOGIN, 'true');
-            showNotification('New cloud profile created', 'success');
+            showNotification('New cloud profile created with local data', 'success');
+          } else {
+            // Manual sync but no cloud data
+            await saveToFirestore();
+            showNotification('Data uploaded to cloud', 'success');
           }
           
           return true;
@@ -2155,8 +2195,8 @@
         return;
       }
       
-      // Manual sync request - always try to sync
-      await loadFromFirestore(false); // false means it's not first login
+      // Manual sync request
+      await loadFromFirestore(false);
     }
 
     function startAutoSync() {
@@ -2893,9 +2933,6 @@
         streakData = JSON.parse(localStorage.getItem(KEYS.STREAK) || '{"count": 0, "lastDate": ""}');
         milestones = JSON.parse(localStorage.getItem(KEYS.MILESTONES) || '{"5": false, "10": false, "20": false, "50": false}');
         goal = JSON.parse(localStorage.getItem(KEYS.GOAL) || 'null');
-        
-        // Check if we've already synced on this login (from previous session)
-        hasSyncedOnThisLogin = localStorage.getItem(KEYS.HAS_SYNCED_ON_LOGIN) === 'true';
       } catch (e) {
         console.error('Error loading data:', e);
         baseValue = 0;
@@ -2903,7 +2940,6 @@
         streakData = { count: 0, lastDate: "" };
         milestones = { "5": false, "10": false, "20": false, "50": false };
         goal = null;
-        hasSyncedOnThisLogin = false;
       }
 
       document.getElementById('baseInput').value = baseValue;
